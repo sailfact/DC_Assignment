@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIstributedGameData", "DIstributedGameData\DIstributedGameData.csproj", "{C1D15440-8CDC-4003-A2B3-ED45488D4C01}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedGameData", "DIstributedGameData\DistributedGameData.csproj", "{C1D15440-8CDC-4003-A2B3-ED45488D4C01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
