@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DistributedGamePortal
 {
-    [ServiceContract]
+    [ServiceContract(CallbackContract = typeof(IDGPortalControllerCallback))]
     public interface IDGPortalController
     {
     }

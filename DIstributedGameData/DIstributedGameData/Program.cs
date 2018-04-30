@@ -40,7 +40,6 @@ namespace DistributedGameData
             catch (TimeoutException e)
             {
                 Console.WriteLine(e.Message);
-
             }
             catch (CommunicationObjectFaultedException e)
             {

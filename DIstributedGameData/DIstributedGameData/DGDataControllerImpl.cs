@@ -9,6 +9,9 @@ using DistributedGameDatabase;
 
 namespace DistributedGameData
 {
+    /// <summary>
+    /// DGDataController
+    /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, 
                      ConcurrencyMode = ConcurrencyMode.Multiple,
                      UseSynchronizationContext = false)]
@@ -35,10 +38,17 @@ namespace DistributedGameData
             {
                 Console.WriteLine(e2.Message);
             }
+            catch (FileNotFoundException e3)
+            {
+                Console.WriteLine(e3.Message);
+            }
         }
 
         /// <summary>
-        /// 
+        /// GetBossNameByID
+        /// takes an ID and returns the corresponding
+        /// Name of a Boss
+        /// or null if error occurs
         /// </summary>
         /// <param name="id"></param>
         /// <param name="errMsg"></param>
@@ -59,7 +69,10 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetBossStatsByID
+        /// takes an ID for a boss and returns the stats via reference
+        /// returns true if successful or false if error
+        /// returns The 
         /// </summary>
         /// <param name="id"></param>
         /// <param name="def"></param>
@@ -255,7 +268,8 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetUsernamePassword
+        /// returns the given username and id for the given id
         /// </summary>
         /// <param name="id"></param>
         /// <param name="username"></param>
