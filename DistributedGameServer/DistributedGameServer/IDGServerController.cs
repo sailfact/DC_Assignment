@@ -10,6 +10,7 @@ namespace DistributedGameServer
     [ServiceContract(CallbackContract = typeof(IDGServerControllerCallback))]
     public interface IDGServerController
     {
+
     }
 
     [ServiceContract]

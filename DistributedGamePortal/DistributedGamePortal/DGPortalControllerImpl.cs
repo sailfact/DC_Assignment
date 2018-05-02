@@ -9,7 +9,7 @@ using DistributedGameServer;
 
 namespace DistributedGamePortal
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall,
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
                      ConcurrencyMode = ConcurrencyMode.Multiple,
                      UseSynchronizationContext = false)]
     class DGPortalControllerImpl : IDGPortalController
@@ -53,6 +53,28 @@ namespace DistributedGamePortal
                 Console.WriteLine("\nError: Modifying TcpBinding Message Quota\n" + e3.Message);
                 Environment.Exit(1);
             }
+        }
+
+        public bool VerifyUser(string username, string password)
+        {
+            string errMsg = null;
+            for (int i = 0; i < m_database.GetNumHeroes(out errMsg); i ++)
+            {
+                if (m_database.GetUsernamePassword(i, out string un, out string pw, out errMsg))
+                {
+                    if (username == un && password == pw)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(errMsg);
+                    return false;
+                }
+            }
+
+            return false;
         }
     }
 }

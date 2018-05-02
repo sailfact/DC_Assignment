@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DistributedGameGUI"
         mc:Ignorable="d"
-        Title="LoginWindow" Height="450" Width="800">
+        Title="LoginWindow" Height="210" Width="240">
     <Grid>
-        
+        <TextBox x:Name="passwdBox" HorizontalAlignment="Left" Margin="50,80,0,0" VerticalAlignment="Top" Height="25" Width="150" RenderTransformOrigin="0.491,2.227"/>
+        <TextBox x:Name="usernameBox" HorizontalAlignment="Left" Height="25" Margin="50,40,0,0" VerticalAlignment="Top" Width="150" RenderTransformOrigin="-2.187,-1.061"/>
+        <Button x:Name="Login_button" Content="_Login" HorizontalAlignment="Left" Margin="50,132,0,0" VerticalAlignment="Top" Width="75" Click="Login_button_Click"/>
     </Grid>
 </Window>

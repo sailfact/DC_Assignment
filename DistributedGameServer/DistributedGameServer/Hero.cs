@@ -41,5 +41,26 @@ namespace DistributedGameServer
             this.Defence = def;
             this.Abilities = abilities;
         }
+
+        public void TakeDamage(int damage)
+        {
+            HealthPoints -= (damage - Defence);
+            HealthPoints = HealthPoints < 0 ? 0 : HealthPoints;
+        }
+
+        public void Heal(int health)
+        {
+            HealthPoints += health;
+            HealthPoints = HealthPoints > MaxHealthPoints ? MaxHealthPoints : HealthPoints;
+        }
+
+        public int UseAbility(int index, out char type, out char target)
+        {
+            Ability ability = Abilities[index];
+            type = ability.Type;
+            target = ability.Target;
+
+            return ability.Value;
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace DistributedGameData
 {
@@ -18,6 +19,10 @@ namespace DistributedGameData
 
             try
             {
+                // incease default message size quota
+                tcpBinding.MaxReceivedMessageSize = System.Int32.MaxValue;
+                tcpBinding.ReaderQuotas.MaxArrayLength = System.Int32.MaxValue;
+
                 host = new ServiceHost(dGData);     // host the implementing class
                 host.AddServiceEndpoint(typeof(IDGDataController), tcpBinding, url);    // access via the interface class
 
@@ -47,7 +52,8 @@ namespace DistributedGameData
             }
             finally
             {
-                host.Close();
+                if (host != null)
+                    host.Close();
                 Environment.Exit(0);
             }
         }

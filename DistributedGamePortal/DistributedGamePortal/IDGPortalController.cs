@@ -10,6 +10,8 @@ namespace DistributedGamePortal
     [ServiceContract(CallbackContract = typeof(IDGPortalControllerCallback))]
     public interface IDGPortalController
     {
+        [OperationContract]
+        bool VerifyUser(string username, string password);
     }
 
     [ServiceContract]

@@ -34,8 +34,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DistributedGamePortal">
+      <HintPath>..\..\DistributedGamePortal\DistributedGamePortal\bin\Debug\DistributedGamePortal.exe</HintPath>
+    </Reference>
+    <Reference Include="DistributedGameServer">
+      <HintPath>..\..\DistributedGameServer\DistributedGameServer\bin\Debug\DistributedGameServer.exe</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />

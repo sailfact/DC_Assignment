@@ -19,9 +19,29 @@ namespace DistributedGameGUI
     /// </summary>
     public partial class LoginWindow : Window
     {
+        private string m_username;
+        private string m_password;
         public LoginWindow()
         {
             InitializeComponent();
+        }
+
+        private void Login_button_Click(object sender, RoutedEventArgs e)
+        {
+            m_username = usernameBox.Text;
+            m_password = passwdBox.Text;
+            DialogResult = true;
+            this.Close();
+        }
+
+        public string GetUsername()
+        {
+            return m_username;
+        }
+
+        public string GetPassword()
+        {
+            return m_password;
         }
     }
 }
