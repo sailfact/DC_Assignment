@@ -13,6 +13,5 @@
             <MenuItem Header="Friends" Height="16" Width="52" Click="MenuItem_Friends"/>
             <MenuItem Header="Heroes" Height="16" Width="51" Click="MenuItem_Heroes"/>
         </Menu>
-
     </Grid>
 </Window>

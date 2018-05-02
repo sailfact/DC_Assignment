@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
@@ -15,7 +16,6 @@ namespace DistributedGamePortal
     class DGPortalControllerImpl : IDGPortalController
     {
         private IDGDataController m_database;
-        private List<IDGServerController> m_gameServer;
         private int m_serverCount;
 
         public DGPortalControllerImpl()
@@ -34,7 +34,6 @@ namespace DistributedGamePortal
                 channelFactory = new ChannelFactory<IDGDataController>(tcpBinding, url);   // bind url to channel factory
 
                 m_database = channelFactory.CreateChannel();  // create database on remote server
-                m_gameServer = new List<IDGServerController>();
                 m_serverCount = -1;
             }
             catch (ArgumentNullException e1)
@@ -53,6 +52,12 @@ namespace DistributedGamePortal
                 Console.WriteLine("\nError: Modifying TcpBinding Message Quota\n" + e3.Message);
                 Environment.Exit(1);
             }
+        }
+
+        public int GetServerID()
+        {
+            ++m_serverCount;
+            return m_serverCount;
         }
 
         public bool VerifyUser(string username, string password)

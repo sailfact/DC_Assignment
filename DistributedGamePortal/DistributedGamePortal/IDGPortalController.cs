@@ -12,6 +12,9 @@ namespace DistributedGamePortal
     {
         [OperationContract]
         bool VerifyUser(string username, string password);
+
+        [OperationContract]
+        int GetServerID();
     }
 
     [ServiceContract]

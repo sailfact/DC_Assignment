@@ -14,6 +14,9 @@ namespace DistributedGameServer
     class DGServerControllerImpl : IDGServerController
     {
         private IDGPortalController m_portal;
+        private List<User> m_users;
+        private int m_count;
+        private int m_serverID
 
         public DGServerControllerImpl()
         {
@@ -31,6 +34,9 @@ namespace DistributedGameServer
                 channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
 
                 m_portal = channelFactory.CreateChannel();
+                m_serverID = m_portal.GetServerID();
+                m_users = new List<User>();
+                m_count = -1;
             }
             catch (ArgumentNullException e1)
             {
@@ -40,7 +46,7 @@ namespace DistributedGameServer
             }
             catch (CommunicationException e2)
             {
-                Console.WriteLine("\nError: Communicating with Data Server \n" + e2.Message);
+                Console.WriteLine("\nError: Communicating with Portal \n" + e2.Message);
                 Environment.Exit(1);
             }
             catch (InvalidOperationException e3)
@@ -48,6 +54,32 @@ namespace DistributedGameServer
                 Console.WriteLine("\nError: Modifying TcpBinding Message Quota\n" + e3.Message);
                 Environment.Exit(1);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newUser"></param>
+        /// <returns></returns>
+        public bool AddUser(User newUser, out string errMsg)
+        {
+            errMsg = null;
+            if (m_count < 12)
+            {
+                m_users.Add(newUser);
+                ++m_count;
+                return true;
+            }
+            else
+            {
+                errMsg = "Server is Full";
+                return false;
+            }
+        }
+
+        public int GetServerID()
+        {
+            return m_serverID;
         }
     }
 }

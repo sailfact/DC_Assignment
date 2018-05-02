@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DistributedGamePortal
 {
     [DataContract]
-    class User
+    public class User
     {
         [DataMember]
         public int UserID { get; set; }
@@ -20,9 +20,9 @@ namespace DistributedGamePortal
         public string Password { get; set; }
         
         [DataMember]
-        public FriendList FriendList { get; set; }
+        public List<User> FriendList { get; set; }
 
-        public User(int id, string username, string passwd,  FriendList friendList)
+        public User(int id, string username, string passwd,  List<User> friendList)
         {
             this.UserID = id;
             this.UserName = UserName;

@@ -12,7 +12,7 @@ namespace DistributedGameData
     /// <summary>
     /// DGDataController
     /// </summary>
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, 
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, 
                      ConcurrencyMode = ConcurrencyMode.Multiple,
                      UseSynchronizationContext = false)]
     class DGDataControllerImpl : IDGDataController
@@ -27,6 +27,7 @@ namespace DistributedGameData
         {
             try
             {
+                Console.WriteLine("Client Connected");
                 m_gameDB = new DistributedGameDB();
                 m_gameDB.InitDB();
             }

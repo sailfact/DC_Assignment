@@ -13,7 +13,7 @@ namespace DistributedGameServer
         {
             ServiceHost host = null;
             NetTcpBinding tcpBinding = new NetTcpBinding();
-            string url = "net.tcp://localhost:50003/DGServer1";
+            string url = null;
             DGServerControllerImpl dGServer = new DGServerControllerImpl();
 
             try
@@ -21,6 +21,8 @@ namespace DistributedGameServer
                 // increases message quota to max
                 tcpBinding.MaxReceivedMessageSize = System.Int32.MaxValue;
                 tcpBinding.ReaderQuotas.MaxArrayLength = System.Int32.MaxValue;
+
+                url = "net.tcp://localhost:50003/DGServer"+dGServer.GetServerID();
 
                 host = new ServiceHost(dGServer);   // host the implementing class
                 host.AddServiceEndpoint(typeof(IDGServerController), tcpBinding, url);    // access via the interface class
