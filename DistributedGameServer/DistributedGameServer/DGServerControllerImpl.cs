@@ -16,7 +16,7 @@ namespace DistributedGameServer
         private IDGPortalController m_portal;
         private List<User> m_users;
         private int m_count;
-        private int m_serverID
+        private int m_serverID;
 
         public DGServerControllerImpl()
         {
@@ -44,14 +44,19 @@ namespace DistributedGameServer
                 Environment.Exit(1);
 
             }
+            catch (CommunicationObjectFaultedException e3)
+            {
+                Console.WriteLine("\nError: Communicating with Portal \n" + e3.Message);
+                Environment.Exit(1);
+            }
             catch (CommunicationException e2)
             {
                 Console.WriteLine("\nError: Communicating with Portal \n" + e2.Message);
                 Environment.Exit(1);
             }
-            catch (InvalidOperationException e3)
+            catch (InvalidOperationException e4)
             {
-                Console.WriteLine("\nError: Modifying TcpBinding Message Quota\n" + e3.Message);
+                Console.WriteLine("\nError: Modifying TcpBinding Message Quota\n" + e4.Message);
                 Environment.Exit(1);
             }
         }
@@ -80,6 +85,11 @@ namespace DistributedGameServer
         public int GetServerID()
         {
             return m_serverID;
+        }
+
+        public void OnVerifyUsersComplete(bool result)
+        {
+            throw new NotImplementedException();
         }
     }
 }

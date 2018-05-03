@@ -28,7 +28,7 @@ namespace DistributedGamePortal
                 host.Open();        // enter listening state ready for client requests
                 Console.WriteLine("Press Enter to exit");
                 Console.ReadLine(); // block waiting for client requests
-
+                host.Close();
             }
             catch (InvalidOperationException e1)
             {
@@ -41,11 +41,6 @@ namespace DistributedGamePortal
             catch (CommunicationObjectFaultedException e3)
             {
                 Console.WriteLine(e3.Message);
-            }
-            finally
-            {
-                if (host != null)
-                    host.Close();
             }
         }
     }
