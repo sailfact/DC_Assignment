@@ -33,14 +33,15 @@ namespace DistributedGameGUI
 
         public void Window_Loaded(object sender, RoutedEventArgs e)
         { 
-            DuplexChannelFactory<IDGPortalController> channelFactory;
+            ChannelFactory<IDGPortalController> channelFactory;
 
             NetTcpBinding tcpBinding = new NetTcpBinding();
             string url = "net.tcp://localhost:50002/DGPortal";
             try
             {
-                channelFactory = new DuplexChannelFactory<IDGPortalController>(new InstanceContext(this), tcpBinding, url);   // bind url to channel factory
+                channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
                 m_portal = channelFactory.CreateChannel();  // create portal on remote server
+                Login();
             }
             catch (ArgumentNullException)
             {
@@ -64,7 +65,15 @@ namespace DistributedGameGUI
             LoginWindow loginWind = new LoginWindow();
             if (loginWind.ShowDialog() == true)
             {
-                m_portal.VerifyUserAsync(loginWind.GetUsername(), loginWind.GetPassword());
+               if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword()))
+                {
+                    MessageBox.Show("Login Successful");
+                }
+                else
+                {
+                    MessageBox.Show("Unable to Login");
+                    Login();    // reopen login window
+                }
             }
         } 
 
@@ -78,19 +87,6 @@ namespace DistributedGameGUI
         {
             HeroSelect heroWind = new HeroSelect();
             heroWind.Show();
-        }
-
-        public void OnVerifyUsersComplete(bool result)
-        {
-            if (result)
-            {
-                MessageBox.Show("Login Successful");
-            }
-            else
-            {
-                MessageBox.Show("Unable to Login");
-                Login();    // reopen login window
-            }
         }
     }
 }

@@ -22,7 +22,7 @@ namespace DistributedGameServer
                 tcpBinding.MaxReceivedMessageSize = System.Int32.MaxValue;
                 tcpBinding.ReaderQuotas.MaxArrayLength = System.Int32.MaxValue;
 
-                url = "net.tcp://localhost:50003/DGServer"+dGServer.GetServerID().ToString("000");
+                url = "net.tcp://localhost:50003/DGServer";
 
                 host = new ServiceHost(dGServer);   // host the implementing class
                 host.AddServiceEndpoint(typeof(IDGServerController), tcpBinding, url);    // access via the interface class

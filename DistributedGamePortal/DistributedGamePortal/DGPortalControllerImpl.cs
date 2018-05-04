@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,14 +10,13 @@ using DistributedGameServer;
 
 namespace DistributedGamePortal
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession,
                      ConcurrencyMode = ConcurrencyMode.Multiple,
                      UseSynchronizationContext = false)]
-    internal class DGPortalControllerImpl : IDGPortalController
+    class DGPortalControllerImpl : IDGPortalController
     {
         private IDGDataController m_database;
         private int m_serverCount;
-        private delegate bool VerifyOperation(string op1, string op2);
 
         public DGPortalControllerImpl()
         {
@@ -82,38 +80,6 @@ namespace DistributedGamePortal
             }
 
             return false;
-        }
-
-        public void VerifyUserAsync(string username, string passwd)
-        {
-            VerifyOperation verifyDel = VerifyUser;
-            AsyncCallback callback;
-
-            callback = this.VerifyUser_OnComplete;
-            verifyDel.BeginInvoke(username, passwd, callback, OperationContext.Current.GetCallbackChannel<IDGPortalControllerCallback>());
-            Console.WriteLine("Verifying Username & password...");
-        }
-
-        public void VerifyUser_OnComplete(IAsyncResult res)
-        {
-            bool iResult = false;
-            VerifyOperation verifyDel;
-            IDGPortalControllerCallback ob = null;
-            AsyncResult asyncObj = (AsyncResult)res;
-
-            try
-            {
-                if (asyncObj.EndInvokeCalled == false)
-                {
-                    verifyDel = (VerifyOperation)asyncObj.AsyncDelegate;
-                    ob = (IDGPortalControllerCallback)asyncObj.AsyncState;
-                    iResult = verifyDel.EndInvoke(asyncObj);
-                }
-            }
-            catch (CommunicationException e)
-            {
-                Console.WriteLine("\nError: Sending User Verification to Client\n" + e.Message);
-            }
         }
     }
 }

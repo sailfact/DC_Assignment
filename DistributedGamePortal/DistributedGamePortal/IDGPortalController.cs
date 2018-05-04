@@ -12,13 +12,7 @@ namespace DistributedGamePortal
     {
         [OperationContract]
         bool VerifyUser(string username, string password);
-
-        [OperationContract]
-        void VerifyUserAsync(string username, string passwd);
-
-        [OperationContract]
-        void VerifyUser_OnComplete(IAsyncResult res);
-
+        
         [OperationContract]
         int GetServerID();
     }
@@ -26,7 +20,6 @@ namespace DistributedGamePortal
     [ServiceContract]
     public interface IDGPortalControllerCallback
     {
-        [OperationContract(IsOneWay = true)]
-        void OnVerifyUsersComplete(bool result);
+    
     }
 }

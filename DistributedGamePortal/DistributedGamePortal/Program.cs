@@ -14,7 +14,6 @@ namespace DistributedGamePortal
             ServiceHost host = null;
             NetTcpBinding tcpBinding = new NetTcpBinding();
             string url = "net.tcp://localhost:50002/DGPortal";
-            IDGPortalController portalController = new DGPortalControllerImpl();
 
             // increases message quota to max
             try
@@ -22,7 +21,7 @@ namespace DistributedGamePortal
                 tcpBinding.MaxReceivedMessageSize = System.Int32.MaxValue;
                 tcpBinding.ReaderQuotas.MaxArrayLength = System.Int32.MaxValue;
 
-                host = new ServiceHost(portalController);   // host the implementing class
+                host = new ServiceHost(typeof(DGPortalControllerImpl));   // host the implementing class
                 host.AddServiceEndpoint(typeof(IDGPortalController), tcpBinding, url);    // access via the interface class
 
                 host.Open();        // enter listening state ready for client requests
