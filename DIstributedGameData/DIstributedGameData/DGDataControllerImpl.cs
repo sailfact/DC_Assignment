@@ -286,9 +286,15 @@ namespace DistributedGameData
             {
                 m_gameDB.GetUsernamePassword(id, out username, out passwd);
             }
-            catch (DllNotFoundException)
+            catch (ArgumentOutOfRangeException e1)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetUsernamePassword'";
+                errMsg = e1.Message;
+                Console.WriteLine(errMsg);
+                return false;
+            }
+            catch (DllNotFoundException e2)
+            {
+                errMsg = e2.Message;
                 Console.WriteLine(errMsg);
                 return false;
             }

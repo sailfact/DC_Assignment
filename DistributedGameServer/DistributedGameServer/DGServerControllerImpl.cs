@@ -16,7 +16,7 @@ namespace DistributedGameServer
         private IDGPortalController m_portal;
         private List<User> m_users;
         private int m_count;
-        private int m_serverID
+        private int m_serverID;
 
         public DGServerControllerImpl()
         {
