@@ -21,7 +21,7 @@ namespace DistributedGameGUI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IDGPortalControllerCallback
     {
         private IDGPortalController m_portal;
         private IDGServerController m_server;
@@ -32,7 +32,7 @@ namespace DistributedGameGUI
         }
 
         public void Window_Loaded(object sender, RoutedEventArgs e)
-        {
+        { 
             DuplexChannelFactory<IDGPortalController> channelFactory;
 
             NetTcpBinding tcpBinding = new NetTcpBinding();
@@ -59,27 +59,14 @@ namespace DistributedGameGUI
             }
         }
 
-        private void MenuItem_Login(object sender, RoutedEventArgs e)
+        private void Login()
         {
             LoginWindow loginWind = new LoginWindow();
             if (loginWind.ShowDialog() == true)
             {
-                if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword()))
-                {
-                    MessageBox.Show("Login Successful");
-                }
-                else
-                {
-                    MessageBox.Show("Incorrect Username or Password");
-                }
+                m_portal.VerifyUserAsync(loginWind.GetUsername(), loginWind.GetPassword());
             }
-        }
-
-        private void MenuItem_Portal(object sender, RoutedEventArgs e)
-        {
-            PortalWindow portalWind = new PortalWindow();
-            portalWind.ShowDialog();
-        }
+        } 
 
         private void MenuItem_Friends(object sender, RoutedEventArgs e)
         {
@@ -91,6 +78,19 @@ namespace DistributedGameGUI
         {
             HeroSelect heroWind = new HeroSelect();
             heroWind.Show();
+        }
+
+        public void OnVerifyUsersComplete(bool result)
+        {
+            if (result)
+            {
+                MessageBox.Show("Login Successful");
+            }
+            else
+            {
+                MessageBox.Show("Unable to Login");
+                Login();    // reopen login window
+            }
         }
     }
 }

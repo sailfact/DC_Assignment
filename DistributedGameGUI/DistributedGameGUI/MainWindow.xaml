@@ -8,8 +8,6 @@
         Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
     <Grid>
         <Menu x:Name="menu" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
-            <MenuItem Header="Login" Height="16" Width="44" Click="MenuItem_Login"/>
-            <MenuItem Header="Portal" Height="16" Width="47" Click="MenuItem_Portal"/>
             <MenuItem Header="Friends" Height="16" Width="52" Click="MenuItem_Friends"/>
             <MenuItem Header="Heroes" Height="16" Width="51" Click="MenuItem_Heroes"/>
         </Menu>
