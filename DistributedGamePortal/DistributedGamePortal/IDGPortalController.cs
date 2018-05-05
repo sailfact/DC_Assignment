@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace DistributedGamePortal
 {
-    [ServiceContract(CallbackContract = typeof(IDGPortalControllerCallback))]
     public interface IDGPortalController
     {
         [OperationContract]
@@ -15,11 +14,11 @@ namespace DistributedGamePortal
         
         [OperationContract]
         int GetServerID();
-    }
 
-    [ServiceContract]
-    public interface IDGPortalControllerCallback
-    {
-    
+        [OperationContract]
+        FriendList GetFriendList()
+        {
+            
+1       }
     }
 }

@@ -13,9 +13,7 @@ namespace DistributedGameServer
     {
         [OperationContract]
         bool AddUser(User newUser, out string errMsg);
-
-        int GetServerID();
-    }
+     }
 
     [ServiceContract]
     public interface IDGServerControllerCallback

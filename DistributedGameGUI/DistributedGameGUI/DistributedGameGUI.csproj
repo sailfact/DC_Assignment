@@ -62,7 +62,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="FriendList.xaml">
+    <Page Include="DisplayFriendList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -82,8 +82,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FriendList.xaml.cs">
-      <DependentUpon>FriendList.xaml</DependentUpon>
+    <Compile Include="DisplayFriendList.xaml.cs">
+      <DependentUpon>DisplayFriendList.xaml</DependentUpon>
     </Compile>
     <Compile Include="HeroSelect.xaml.cs">
       <DependentUpon>HeroSelect.xaml</DependentUpon>

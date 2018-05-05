@@ -21,7 +21,9 @@ namespace DistributedGameGUI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, IDGPortalControllerCallback
+    [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple,
+                      UseSynchronizationContext = false)]
+    public partial class MainWindow : Window, IDGServerControllerCallback
     {
         private IDGPortalController m_portal;
         private IDGServerController m_server;
@@ -79,7 +81,7 @@ namespace DistributedGameGUI
 
         private void MenuItem_Friends(object sender, RoutedEventArgs e)
         {
-            FriendList friendWind = new FriendList();
+            DisplayFriendList friendWind = new DisplayFriendList(m_portal.GetFriendList());
             friendWind.Show(); ;
         }
 

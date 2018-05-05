@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DIstributedGameData, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\DistributedGameData\DistributedGameData\bin\Debug\DIstributedGameData.exe</HintPath>
+    </Reference>
     <Reference Include="DistributedGamePortal">
       <HintPath>..\..\DistributedGamePortal\DistributedGamePortal\bin\Debug\DistributedGamePortal.exe</HintPath>
     </Reference>
