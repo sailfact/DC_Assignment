@@ -21,11 +21,20 @@ namespace test
             int users = dataController.GetNumUsers(out err);
             int heros = dataController.GetNumHeroes(out err);
             int bosses = dataController.GetNumBosses(out err);
-
-            dataController.GetUsernamePassword(0, out username, out password, out err);
-            Console.WriteLine(username + " " + password);
+        
 
             Console.WriteLine("Users = {0}, heros = {1}, bosses = {2}", users, heros, bosses);
+
+            for (int i = 0; i < dataController.GetNumUsers(out err); i++)
+            {
+                List<string> list = dataController.GetFriendsByID(i, out err);
+                list.ForEach(delegate (String name)
+                {
+                    Console.WriteLine(name);
+                }); 
+
+            }
+
             for (int i = 0; i < heros; i ++)
             {
                 string name = dataController.GetHeroNameByID(i, out err);

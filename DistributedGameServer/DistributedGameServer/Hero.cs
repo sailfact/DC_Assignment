@@ -10,6 +10,9 @@ namespace DistributedGameServer
     [DataContract]
     class Hero
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [DataMember]
         public int HeroID { get; set; }
 
@@ -31,7 +34,14 @@ namespace DistributedGameServer
 
         [DataMember]
         public List<Ability> Abilities { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="hp"></param>
+        /// <param name="def"></param>
+        /// <param name="abilities"></param>
         public Hero(int id, string name, int hp, int def, List<Ability> abilities)
         {
             this.HeroID = id;

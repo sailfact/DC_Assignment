@@ -36,7 +36,15 @@ namespace DistributedGameServer
 
         [DataMember]
         public char Target { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="desc"></param>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        /// <param name="target"></param>
         public Ability(int id, string name, string desc, int value, char type, char target)
         {
             this.AbilityID = id;

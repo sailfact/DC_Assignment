@@ -12,21 +12,24 @@ namespace DistributedGameServer
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
                      ConcurrencyMode = ConcurrencyMode.Multiple,
                      UseSynchronizationContext = false)]
-    class DGServerControllerImpl : IDGServerController
+    class DGServerControllerImpl : IDGServerController, IDGPortalControllerCallback
     {
         private IDGPortalController m_portal;
         private IDGDataController m_database;
         private List<User> m_users;
+        private List<Hero> m_heroes;
+        private Boss m_boss;
         private int m_count;
         private int m_serverID;
-
+        /// <summary>
+        /// 
+        /// </summary>
         public DGServerControllerImpl()
         {
             ConnectToPortal();
             m_serverID = m_portal.GetServerID();
             m_users = new List<User>();
             m_count = -1;
-
             ConnectToDB();
         }
 
@@ -34,23 +37,14 @@ namespace DistributedGameServer
         /// 
         /// </summary>
         /// <param name="newUser"></param>
-        /// <returns></returns>
-        public bool AddUser(User newUser, out string errMsg)
+        public void AddUser(User newUser)
         {
-            errMsg = null;
-            if (m_count < 12)
-            {
-                m_users.Add(newUser);
-                ++m_count;
-                return true;
-            }
-            else
-            {
-                errMsg = "Server is Full";
-                return false;
-            }
+            m_users.Add(newUser);
+            ++m_count;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void ConnectToDB()
         {
             ChannelFactory<IDGDataController> channelFactory;
@@ -85,10 +79,12 @@ namespace DistributedGameServer
                 Environment.Exit(1);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void ConnectToPortal()
         {
-            ChannelFactory<IDGPortalController> channelFactory;
+            DuplexChannelFactory<IDGPortalController> channelFactory;
 
             NetTcpBinding tcpBinding = new NetTcpBinding();
             string url = "net.tcp://localhost:50002/DGPortal";
@@ -99,7 +95,7 @@ namespace DistributedGameServer
                 tcpBinding.ReaderQuotas.MaxArrayLength = System.Int32.MaxValue;
 
                 // bind channel to url
-                channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
+                channelFactory = new DuplexChannelFactory<IDGPortalController>(new InstanceContext(this), tcpBinding, url);   // bind url to channel factory
 
                 m_portal = channelFactory.CreateChannel();  
             }
@@ -126,9 +122,56 @@ namespace DistributedGameServer
             }
         }
 
-        public int GetServerID()
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SetUpGame()
         {
-            return m_serverID;
+            m_boss = SelectBoss();
+            m_heroes = GetHeroes();
+        }
+
+        /// <summary>
+        /// SelectBoss
+        /// gets a random boss from the server and 
+        /// assigns it to m_boss
+        /// </summary>
+        /// <returns>Boss</returns>
+        public Boss SelectBoss()
+        {
+            Random random = new Random();
+            string err = null;
+            int index = random.Next(m_database.GetNumBosses(out err)-1);
+            string name = m_database.GetBossNameByID(index, out err);
+            m_database.GetBossStatsByID(index, out int def, out int hp, out int damage, out char targPref, out err);
+            return new Boss(index, name, hp, def, damage, targPref);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<Hero> GetHeroes()
+        {
+            List<Hero> heroes = new List<Hero>();
+            string err = null;
+            List<Ability> abilities = new List<Ability>();
+            int val;
+            string name, desc;
+            char type, targ;
+
+            for(int i = 0; i < m_database.GetNumHeroes(out err); ++i)
+            {
+                m_database.GetHeroStatsByID(i, out int def, out int hp, out int moveNum, out err);
+                name  = m_database.GetHeroNameByID(i, out err);
+                m_database.GetMovesByIDAndIndex(i, 0, out val, out desc, out type, out targ, out err);
+                abilities.Add(new Ability(0, "Move1", desc, val, type, targ));
+                m_database.GetMovesByIDAndIndex(i, 1, out val, out desc, out type, out targ, out err);
+                abilities.Add(new Ability(1, "Move2", desc, val, type, targ));
+                heroes.Add(new Hero(i, name, hp, def, abilities));
+            }
+
+            return heroes;
         }
     }
 }

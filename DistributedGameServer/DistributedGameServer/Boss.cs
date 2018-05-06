@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace DistributedGameServer
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [DataContract]
     class Boss
     {

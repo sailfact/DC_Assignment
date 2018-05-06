@@ -5,14 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DistributedGameGUI"
         mc:Ignorable="d"
-        Title="FriendList" Height="424.8" Width="438.4" Loaded="Window_Loaded">
+        Title="FriendList" Height="431.14" Width="272.284" Loaded="Window_Loaded">
     <Grid>
-        <ListView x:Name="IvwFriendList" HorizontalAlignment="Center" Height="Auto" Margin="30,30,30,30" VerticalAlignment="Center" Width="Auto" ItemsSource="{Binding Source=Friends}">
+        <ListView x:Name="IvwFriendList" HorizontalAlignment="Center" Height="255" Margin="12,71,10,74" VerticalAlignment="Center" Width="242" ItemsSource="{Binding Source=Friends}">
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
-                    <GridViewColumn x:Name="UserID" Header="ID" Width="100" DisplayMemberBinding="{Binding UserID}"/>
                     <GridViewColumn x:Name="Username" Header="name" Width="100" DisplayMemberBinding="{Binding Username}"/>
-                    <GridViewColumn x:Name="Servername" Header="Server" Width="100" DisplayMemberBinding="{Binding Servername}"/>
                 </GridView>
             </ListView.View>
         </ListView>

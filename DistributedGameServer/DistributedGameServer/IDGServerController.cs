@@ -11,13 +11,12 @@ namespace DistributedGameServer
     [ServiceContract(CallbackContract = typeof(IDGServerControllerCallback))]
     public interface IDGServerController
     {
-        [OperationContract]
-        bool AddUser(User newUser, out string errMsg);
-     }
+
+    }
 
     [ServiceContract]
     public interface IDGServerControllerCallback
     {
-
+        
     }
 }

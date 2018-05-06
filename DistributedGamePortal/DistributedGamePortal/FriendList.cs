@@ -8,43 +8,22 @@ using System.Threading.Tasks;
 namespace DistributedGamePortal
 {
     [DataContract]
-    public class Friend
-    {
-        [DataMember]
-        public int UserID { get; set; }
-
-        [DataMember]
-        public string Username { get; set; }
-
-        [DataMember]
-        public string Servername { get; set; }
-
-        public Friend(int id, string username, string servername)
-        {
-            this.UserID = id;
-            this.Username = username;
-            this.Servername = servername;
-        }
-
-    }
-
-    [DataContract]
     public class FriendList
     {
         [DataMember]
-        public List<Friend> Friends { get; set; }
+        public List<string> Friends { get; set; }
 
-        public FriendList(List<Friend> friends)
+        public FriendList(List<string> friends)
         {
-            this.Friends = friends;
+           this.Friends = friends;
         }
 
         public FriendList()
         {
-            this.Friends = new List<Friend>();
+            this.Friends = new List<string>();
         }
 
-        public void AddFriend(Friend newFriend)
+        public void AddFriend(string newFriend)
         {
             Friends.Add(newFriend);
         }

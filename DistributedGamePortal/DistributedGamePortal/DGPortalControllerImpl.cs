@@ -16,8 +16,12 @@ namespace DistributedGamePortal
     class DGPortalControllerImpl : IDGPortalController
     {
         private IDGDataController m_database;
+        private User m_user;
         private int m_serverCount;
-
+        IDGPortalControllerCallback m_callback;
+        /// <summary>
+        /// 
+        /// </summary>
         public DGPortalControllerImpl()
         {
             ChannelFactory<IDGDataController> channelFactory;
@@ -34,7 +38,9 @@ namespace DistributedGamePortal
                 channelFactory = new ChannelFactory<IDGDataController>(tcpBinding, url);   // bind url to channel factory
 
                 m_database = channelFactory.CreateChannel();  // create database on remote server
+                m_user = null;
                 m_serverCount = -1;
+                m_callback = OperationContext.Current.GetCallbackChannel<IDGPortalControllerCallback>();
             }
             catch (ArgumentNullException e1)
             {
@@ -53,22 +59,41 @@ namespace DistributedGamePortal
                 Environment.Exit(1);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public FriendList GetFriendList()
+        {
+            return m_user != null ? m_user.FriendList : null;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public int GetServerID()
         {
             ++m_serverCount;
             return m_serverCount;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public bool VerifyUser(string username, string password)
         {
             string errMsg = null;
+            m_user = null;
             for (int i = 0; i < m_database.GetNumHeroes(out errMsg); i ++)
             {
                 if (m_database.GetUsernamePassword(i, out string un, out string pw, out errMsg))
                 {
                     if (username == un && password == pw)
                     {
+                        FriendList list = new FriendList(m_database.GetFriendsByID(i, out errMsg));
+                        m_user = new User(i, un, pw, list);
                         return true;
                     }
                 }
