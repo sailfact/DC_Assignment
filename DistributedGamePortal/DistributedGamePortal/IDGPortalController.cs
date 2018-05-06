@@ -23,7 +23,7 @@ namespace DistributedGamePortal
     [ServiceContract]
     public interface IDGPortalControllerCallback
     {
-        [OperationContract]
+        [OperationContract(IsOneWay = true)]
         void AddUser(User newUser);
     }
 }

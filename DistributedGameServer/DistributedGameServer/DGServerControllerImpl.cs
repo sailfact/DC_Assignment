@@ -10,7 +10,7 @@ using DistributedGameData;
 namespace DistributedGameServer
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
-                     ConcurrencyMode = ConcurrencyMode.Multiple,
+                     ConcurrencyMode = ConcurrencyMode.Single,
                      UseSynchronizationContext = false)]
     class DGServerControllerImpl : IDGServerController, IDGPortalControllerCallback
     {
@@ -172,6 +172,11 @@ namespace DistributedGameServer
             }
 
             return heroes;
+        }
+
+        public void Hello()
+        {
+            throw new NotImplementedException();
         }
     }
 }

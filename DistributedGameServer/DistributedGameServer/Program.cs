@@ -24,7 +24,7 @@ namespace DistributedGameServer
 
                 url = "net.tcp://localhost:50003/DGServer";
 
-                host = new ServiceHost(dGServer);   // host the implementing class
+                host = new ServiceHost(dGServer);   // host the implementing object
                 host.AddServiceEndpoint(typeof(IDGServerController), tcpBinding, url);    // access via the interface class
 
                 host.Open();        // enter listening state ready for client requests
