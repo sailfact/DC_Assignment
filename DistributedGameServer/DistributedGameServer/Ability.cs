@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DistributedGameServer
 {
     [DataContract]
-    class Ability
+    public class Ability
     {
         [DataMember]
         public int AbilityID { get; set; }

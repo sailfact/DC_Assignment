@@ -22,7 +22,7 @@ namespace DistributedGameServer
         private int m_count;
         private int m_serverID;
         /// <summary>
-        /// 
+        /// Constructor
         /// </summary>
         public DGServerControllerImpl()
         {
@@ -34,7 +34,9 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// AddUser 
+        /// Callback function for IDGPortalContollerImpl
+        /// adds user to user list
         /// </summary>
         /// <param name="newUser"></param>
         public void AddUser(User newUser)

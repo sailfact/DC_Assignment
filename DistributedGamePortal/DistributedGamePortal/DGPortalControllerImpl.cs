@@ -17,10 +17,11 @@ namespace DistributedGamePortal
     {
         private IDGDataController m_database;
         private User m_user;
-        private int m_serverCount;
-        IDGPortalControllerCallback m_callback;
+        private ServerList m_serverList;
+        private IDGPortalControllerCallback m_callback;
         /// <summary>
-        /// 
+        /// Constructor
+        /// Connects to the data base
         /// </summary>
         public DGPortalControllerImpl()
         {
@@ -39,7 +40,6 @@ namespace DistributedGamePortal
 
                 m_database = channelFactory.CreateChannel();  // create database on remote server
                 m_user = null;
-                m_serverCount = -1;
                 m_callback = OperationContext.Current.GetCallbackChannel<IDGPortalControllerCallback>();
             }
             catch (ArgumentNullException e1)
@@ -59,6 +59,16 @@ namespace DistributedGamePortal
                 Environment.Exit(1);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="server"></param>
+        public void AddServerInfo(Server server)
+        {
+            m_serverList.AddServer(server);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -67,25 +77,36 @@ namespace DistributedGamePortal
         {
             return m_user != null ? m_user.FriendList : null;
         }
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
         public int GetServerID()
         {
-            ++m_serverCount;
-            return m_serverCount;
+            throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ServerList GetServerList()
+        {
+            return m_serverList;
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public bool VerifyUser(string username, string password)
+        public bool VerifyUser(string username, string password, out int clientID)
         {
             string errMsg = null;
             m_user = null;
+            clientID = -1;
             for (int i = 0; i < m_database.GetNumHeroes(out errMsg); i ++)
             {
                 if (m_database.GetUsernamePassword(i, out string un, out string pw, out errMsg))
@@ -94,6 +115,7 @@ namespace DistributedGamePortal
                     {
                         FriendList list = new FriendList(m_database.GetFriendsByID(i, out errMsg));
                         m_user = new User(i, un, pw, list);
+                        clientID = 1;
                         return true;
                     }
                 }

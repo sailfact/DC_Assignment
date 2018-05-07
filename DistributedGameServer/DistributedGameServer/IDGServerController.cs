@@ -11,7 +11,8 @@ namespace DistributedGameServer
     [ServiceContract(CallbackContract = typeof(IDGServerControllerCallback))]
     public interface IDGServerController
     {
-
+        [OperationContract]
+        void SelectHero(Hero hero);
     }
 
     [ServiceContract]

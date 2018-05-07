@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DistributedGameServer
 {
     [DataContract]
-    class Hero
+    public class Hero
     {
         /// <summary>
         /// 
