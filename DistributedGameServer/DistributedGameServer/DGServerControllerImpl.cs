@@ -9,6 +9,8 @@ using DistributedGameData;
 
 namespace DistributedGameServer
 {
+    [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, 
+                     UseSynchronizationContext = false)]
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
                      ConcurrencyMode = ConcurrencyMode.Single,
                      UseSynchronizationContext = false)]
@@ -176,7 +178,7 @@ namespace DistributedGameServer
             return heroes;
         }
 
-        public void Hello()
+        public void SelectHero(Hero hero)
         {
             throw new NotImplementedException();
         }
