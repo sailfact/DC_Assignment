@@ -103,7 +103,8 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetGriendsByID
+        /// gets a list of friends for a given user id
         /// </summary>
         /// <param name="id"></param>
         /// <param name="errMsg"></param>
@@ -124,7 +125,8 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetHeroNameByID
+        /// returns the name of a Hero for the given ID
         /// </summary>
         /// <param name="id"></param>
         /// <param name="errMsg"></param>
@@ -145,7 +147,7 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetHeroStatsByID
         /// </summary>
         /// <param name="id"></param>
         /// <param name="def"></param>
@@ -162,6 +164,12 @@ namespace DistributedGameData
             try
             {
                 m_gameDB.GetHeroStatsByID(id, out def, out hp, out moveNum);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                errMsg = "ERROR : Invalid Arguments";
+                Console.WriteLine(errMsg);
+                return false;
             }
             catch (DllNotFoundException)
             {
@@ -195,6 +203,12 @@ namespace DistributedGameData
             {
                 m_gameDB.GetMovesByIDAndIndex(id, index, out value, out description, out type, out target);
             }
+            catch (ArgumentOutOfRangeException)
+            {
+                errMsg = "ERROR : Invalid Argument";
+                Console.WriteLine(errMsg);
+                return false;
+            }
             catch (DllNotFoundException)
             {
                 errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetMovesByIDAndIndex'";
@@ -206,7 +220,7 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetNumBosses
         /// </summary>
         /// <param name="errMsg"></param>
         /// <returns></returns>
@@ -227,7 +241,7 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetNumHeroes
         /// </summary>
         /// <param name="errMsg"></param>
         /// <returns></returns>
@@ -248,7 +262,7 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetNumUsers
         /// </summary>
         /// <param name="errMsg"></param>
         /// <returns></returns>

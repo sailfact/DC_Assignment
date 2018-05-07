@@ -82,7 +82,7 @@ namespace DistributedGameGUI
         private void MenuItem_Friends(object sender, RoutedEventArgs e)
         {
             DisplayFriendList friendWind = new DisplayFriendList(m_portal.GetFriendList());
-            friendWind.Show(); ;
+            friendWind.Show(); 
         }
 
         private void MenuItem_Heroes(object sender, RoutedEventArgs e)
