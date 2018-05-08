@@ -27,6 +27,7 @@ namespace DistributedGameGUI
     {
         private IDGPortalController m_portal;
         private IDGServerController m_server;
+        private int m_clientID;
         public MainWindow()
         {
             m_portal = null;
@@ -67,7 +68,7 @@ namespace DistributedGameGUI
             LoginWindow loginWind = new LoginWindow();
             if (loginWind.ShowDialog() == true)
             {
-               if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword()))
+               if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword(), out m_clientID))
                 {
                     MessageBox.Show("Login Successful");
                 }
@@ -83,6 +84,35 @@ namespace DistributedGameGUI
         {
             DisplayFriendList friendWind = new DisplayFriendList(m_portal.GetFriendList());
             friendWind.Show(); 
+        }
+
+        private void ConnectToServer(Server newServer)
+        {
+            DuplexChannelFactory<IDGServerController> channelFactory;
+
+            NetTcpBinding tcpBinding = new NetTcpBinding();
+            string url = newServer.Url;
+
+            try
+            {
+                channelFactory = new DuplexChannelFactory<IDGServerController>(new InstanceContext(this), tcpBinding, url);   // bind url to channel factory
+                m_server = channelFactory.CreateChannel();  // create portal on remote server
+            }
+            catch (ArgumentNullException)
+            {
+                MessageBox.Show("Error Connecting to Portal, please  try again later\n");
+                this.Close();
+            }
+            catch (InvalidOperationException)
+            {
+                MessageBox.Show("Error Connecting to Portal, please  try again later\n");
+                this.Close();
+            }
+            catch (EndpointNotFoundException)
+            {
+                MessageBox.Show("Service not avialable at this time, please  try again later\n");
+                this.Close();
+            }
         }
 
         private void MenuItem_Heroes(object sender, RoutedEventArgs e)

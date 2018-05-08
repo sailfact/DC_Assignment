@@ -19,9 +19,10 @@ namespace DistributedGameServer
         private IDGPortalController m_portal;
         private IDGDataController m_database;
         private List<User> m_users;
-        private List<Hero> m_heroes;
+        private List<Hero> m_heros;
+        private Dictionary<User, Hero> m_gameHeros;
         private Boss m_boss;
-        private int m_count;
+        private int m_usercount;
         private int m_serverID;
         /// <summary>
         /// Constructor
@@ -31,7 +32,10 @@ namespace DistributedGameServer
             ConnectToPortal();
             m_serverID = m_portal.GetServerID();
             m_users = new List<User>();
-            m_count = -1;
+            m_heros = GetHeros();
+            m_gameHeros = new Dictionary<User, Hero>();
+            m_boss = null;
+            m_usercount = -1;
             ConnectToDB();
         }
 
@@ -44,7 +48,7 @@ namespace DistributedGameServer
         public void AddUser(User newUser)
         {
             m_users.Add(newUser);
-            ++m_count;
+            ++m_usercount;
         }
         /// <summary>
         /// 
@@ -132,7 +136,7 @@ namespace DistributedGameServer
         public void SetUpGame()
         {
             m_boss = SelectBoss();
-            m_heroes = GetHeroes();
+            
         }
 
         /// <summary>
@@ -155,9 +159,9 @@ namespace DistributedGameServer
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<Hero> GetHeroes()
+        public List<Hero> GetHeros()
         {
-            List<Hero> heroes = new List<Hero>();
+            List<Hero> heros = new List<Hero>();
             string err = null;
             List<Ability> abilities = new List<Ability>();
             int val;
@@ -172,15 +176,28 @@ namespace DistributedGameServer
                 abilities.Add(new Ability(0, "Move1", desc, val, type, targ));
                 m_database.GetMovesByIDAndIndex(i, 1, out val, out desc, out type, out targ, out err);
                 abilities.Add(new Ability(1, "Move2", desc, val, type, targ));
-                heroes.Add(new Hero(i, name, hp, def, abilities));
+                heros.Add(new Hero(i, name, hp, def, abilities));
             }
 
-            return heroes;
+            return heros;
         }
-
-        public void SelectHero(Hero hero)
+        /// <summary>
+        /// SelectHero
+        /// </summary>
+        /// <param name="hero"></param>
+        public void SelectHero(Hero hero, int userID)
         {
-            throw new NotImplementedException();
+            m_gameHeros.Add(m_users[userID], hero);
+        }
+        /// <summary>
+        /// DisplayStats
+        /// </summary>
+        /// <param name="boss"></param>
+        /// <param name="heroes"></param>
+        public void GetGameStats(out Boss boss, out Dictionary<User, Hero> heros)
+        {
+            boss = m_boss;
+            heros = m_gameHeros;
         }
     }
 }
