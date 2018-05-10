@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +10,7 @@ using DistributedGameServer;
 
 namespace DistributedGamePortal
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession,
                      ConcurrencyMode = ConcurrencyMode.Multiple,
                      UseSynchronizationContext = false)]
     class DGPortalControllerImpl : IDGPortalController
@@ -20,7 +18,7 @@ namespace DistributedGamePortal
         private IDGDataController m_database;
         private User m_user;
         private ServerList m_serverList;
-        private delegate bool VerifyOperation(string op1, string op2, out User user);
+        private IDGPortalControllerCallback m_callback;
         /// <summary>
         /// Constructor
         /// Connects to the data base
@@ -42,7 +40,7 @@ namespace DistributedGamePortal
 
                 m_database = channelFactory.CreateChannel();  // create database on remote server
                 m_user = null;
-                m_serverList = new ServerList();
+                m_callback = OperationContext.Current.GetCallbackChannel<IDGPortalControllerCallback>();
             }
             catch (ArgumentNullException e1)
             {
@@ -65,6 +63,15 @@ namespace DistributedGamePortal
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="server"></param>
+        public void AddServerInfo(Server server)
+        {
+            m_serverList.AddServer(server);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns></returns>
         public FriendList GetFriendList()
         {
@@ -75,15 +82,9 @@ namespace DistributedGamePortal
         /// 
         /// </summary>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public Server GetServerID()
+        public int GetServerID()
         {
-            int id = m_serverList.ServerCount + 1;
-            string name = "DGServer" + id;
-            string url = "net.tcp://localhost:50003/" + name;
-            Server server = new Server(id, url, name);
-            m_serverList.AddServer(server);
-            return server;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -101,11 +102,11 @@ namespace DistributedGamePortal
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public bool VerifyUser(string username, string password, out User user)
+        public bool VerifyUser(string username, string password, out int clientID)
         {
             string errMsg = null;
-            user = null;
+            m_user = null;
+            clientID = -1;
             for (int i = 0; i < m_database.GetNumHeroes(out errMsg); i ++)
             {
                 if (m_database.GetUsernamePassword(i, out string un, out string pw, out errMsg))
@@ -113,7 +114,8 @@ namespace DistributedGamePortal
                     if (username == un && password == pw)
                     {
                         FriendList list = new FriendList(m_database.GetFriendsByID(i, out errMsg));
-                        user = new User(i, un, pw, list);
+                        m_user = new User(i, un, pw, list);
+                        clientID = 1;
                         return true;
                     }
                 }
@@ -126,38 +128,5 @@ namespace DistributedGamePortal
 
             return false;
         }
-        
-        public void VerifyUserAsync(string username, string password)
-        {
-            VerifyOperation del = VerifyUser;
-            AsyncCallback callback;
-
-            callback = this.VerifyOnComplete;
-
-            del.BeginInvoke(username, password, out User user, callback, OperationContext.Current.GetCallbackChannel<IDGPortalControllerCallback>());
-
-            Console.WriteLine("Verifying User...");
-        }
-
-        private void VerifyOnComplete(IAsyncResult res)
-        {
-            bool iResult = false;
-            VerifyOperation del;
-            IDGPortalControllerCallback ob = null;
-            AsyncResult asyncObj = (AsyncResult)res;
-            User user = null;
-
-            if (asyncObj.EndInvokeCalled == false)
-            {
-                del = (VerifyOperation)asyncObj.AsyncDelegate;
-                ob = (IDGPortalControllerCallback)asyncObj.AsyncState;
-                iResult = del.EndInvoke(out user, asyncObj);
-            }
-            asyncObj.AsyncWaitHandle.Close();
-            Console.WriteLine("Verification Complete.");
-            ob.VerifyUserOnComplete(iResult, user);
-        }
     }
-
-
 }
