@@ -20,14 +20,10 @@ namespace DistributedGameServer
         public string HeroName { get; set; }
 
         [DataMember]
-        public int MaxHealthPoints { get; }
+        public int MaxHealthPoints { get; set; }
 
         [DataMember]
-        public int HealthPoints
-        {
-            get => HealthPoints;
-            set => HealthPoints = value > MaxHealthPoints ? MaxHealthPoints : value;
-        }
+        public int HealthPoints { get; set; }
 
         [DataMember]
         public int Defence { get; set; }

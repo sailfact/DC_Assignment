@@ -23,11 +23,11 @@ namespace DistributedGameGUI
     /// </summary>
     [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple,
                       UseSynchronizationContext = false)]
-    public partial class MainWindow : Window, IDGServerControllerCallback
+    public partial class MainWindow : Window, IDGPortalControllerCallback, IDGServerControllerCallback
     {
         private IDGPortalController m_portal;
         private IDGServerController m_server;
-        private int m_clientID;
+        private User m_user;
         public MainWindow()
         {
             m_portal = null;
@@ -36,13 +36,13 @@ namespace DistributedGameGUI
 
         public void Window_Loaded(object sender, RoutedEventArgs e)
         { 
-            ChannelFactory<IDGPortalController> channelFactory;
+            DuplexChannelFactory<IDGPortalController> channelFactory;
 
             NetTcpBinding tcpBinding = new NetTcpBinding();
             string url = "net.tcp://localhost:50002/DGPortal";
             try
             {
-                channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
+                channelFactory = new DuplexChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
                 m_portal = channelFactory.CreateChannel();  // create portal on remote server
                 Login();
             }
@@ -51,9 +51,9 @@ namespace DistributedGameGUI
                 MessageBox.Show("Error Connecting to Portal, please  try again later\n");
                 this.Close();
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e1)
             {
-                MessageBox.Show("Error Connecting to Portal, please  try again later\n");
+                MessageBox.Show("Error Connecting to Portal, please  try again later\n"+e1.Message);
                 this.Close();
             }
             catch (EndpointNotFoundException)
@@ -68,15 +68,7 @@ namespace DistributedGameGUI
             LoginWindow loginWind = new LoginWindow();
             if (loginWind.ShowDialog() == true)
             {
-               if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword(), out m_clientID))
-                {
-                    MessageBox.Show("Login Successful");
-                }
-                else
-                {
-                    MessageBox.Show("Unable to Login");
-                    Login();    // reopen login window
-                }
+                m_portal.VerifyUserAsync(loginWind.GetUsername(), loginWind.GetPassword());
             }
         } 
 
@@ -103,9 +95,9 @@ namespace DistributedGameGUI
                 MessageBox.Show("Error Connecting to Portal, please  try again later\n");
                 this.Close();
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e1)
             {
-                MessageBox.Show("Error Connecting to Portal, please  try again later\n");
+                MessageBox.Show("Error Connecting to Portal, please  try again later\n" + e1.Message);
                 this.Close();
             }
             catch (EndpointNotFoundException)
@@ -119,6 +111,30 @@ namespace DistributedGameGUI
         {
             HeroSelect heroWind = new HeroSelect();
             heroWind.Show();
+        }
+
+        public void NotifyPlayerDied()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NotifyGameEnded()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VerifyUserOnComplete(bool result, User user)
+        {
+            if (result)
+            {
+                m_user = user;
+                MessageBox.Show("Login Successful.");
+            }
+            else
+            {
+                MessageBox.Show("Unable to Login,Please try again.");
+                Login();
+            }
         }
     }
 }
