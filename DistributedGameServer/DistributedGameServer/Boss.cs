@@ -11,7 +11,7 @@ namespace DistributedGameServer
     /// 
     /// </summary>
     [DataContract]
-    public class Boss
+    class Boss
     {
         [DataMember]
         public int BossID { get; set; }

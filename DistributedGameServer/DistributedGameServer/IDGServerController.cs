@@ -12,19 +12,12 @@ namespace DistributedGameServer
     public interface IDGServerController
     {
         [OperationContract]
-        void SelectHero(Hero hero, int userID);
-
-        [OperationContract]
-        void GetGameStats(out Boss boss, out Dictionary<User, Hero> heros);
+        void SelectHero(Hero hero);
     }
 
     [ServiceContract]
     public interface IDGServerControllerCallback
     {
-        [OperationContract(IsOneWay = true)]
-        void NotifyPlayerDied();
-
-        [OperationContract(IsOneWay = true)]
-        void NotifyGameEnded();
+        
     }
 }
