@@ -14,7 +14,7 @@ namespace DistributedGameServer
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
                      ConcurrencyMode = ConcurrencyMode.Single,
                      UseSynchronizationContext = false)]
-    class DGServerControllerImpl : IDGServerController, IDGPortalControllerCallback
+    class DGServerControllerImpl : IDGServerController
     {
         private IDGPortalController m_portal;
         private IDGDataController m_database;
@@ -22,14 +22,12 @@ namespace DistributedGameServer
         private List<Hero> m_heroes;
         private Boss m_boss;
         private int m_count;
-        private int m_serverID;
         /// <summary>
         /// Constructor
         /// </summary>
         public DGServerControllerImpl()
         {
             ConnectToPortal();
-            m_serverID = m_portal.GetServerID();
             m_users = new List<User>();
             m_count = -1;
             ConnectToDB();
@@ -99,7 +97,7 @@ namespace DistributedGameServer
                 tcpBinding.ReaderQuotas.MaxArrayLength = System.Int32.MaxValue;
 
                 // bind channel to url
-                channelFactory = new DuplexChannelFactory<IDGPortalController>(new InstanceContext(this), tcpBinding, url);   // bind url to channel factory
+                channelFactory = new DuplexChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
 
                 m_portal = channelFactory.CreateChannel();  
             }
@@ -121,7 +119,7 @@ namespace DistributedGameServer
             }
             catch (InvalidOperationException e4)
             {
-                Console.WriteLine("\nError: Modifying TcpBinding Message Quota\n" + e4.Message);
+                Console.WriteLine(e4.Message);
                 Environment.Exit(1);
             }
         }
@@ -181,6 +179,16 @@ namespace DistributedGameServer
         public void SelectHero(Hero hero)
         {
             throw new NotImplementedException();
+        }
+
+        public void GetGameStats(out Boss boss, out Dictionary<User, Hero> heros)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetServerUrl()
+        {
+            return m_portal.GetServerInfo().Url;
         }
     }
 }

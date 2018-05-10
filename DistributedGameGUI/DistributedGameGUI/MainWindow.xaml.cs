@@ -23,11 +23,11 @@ namespace DistributedGameGUI
     /// </summary>
     [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple,
                       UseSynchronizationContext = false)]
-    public partial class MainWindow : Window, IDGServerControllerCallback
+    public partial class MainWindow : Window, IDGPortalControllerCallback, IDGServerControllerCallback
     {
         private IDGPortalController m_portal;
         private IDGServerController m_server;
-        private int m_clientID;
+        private User m_user;
         public MainWindow()
         {
             m_portal = null;
@@ -68,21 +68,13 @@ namespace DistributedGameGUI
             LoginWindow loginWind = new LoginWindow();
             if (loginWind.ShowDialog() == true)
             {
-               if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword(), out m_clientID))
-                {
-                    MessageBox.Show("Login Successful");
-                }
-                else
-                {
-                    MessageBox.Show("Unable to Login");
-                    Login();    // reopen login window
-                }
+                m_portal.VerifyUserAsync(loginWind.GetUsername(), loginWind.GetPassword());
             }
         } 
 
         private void MenuItem_Friends(object sender, RoutedEventArgs e)
         {
-            DisplayFriendList friendWind = new DisplayFriendList(m_portal.GetFriendList());
+            DisplayFriendList friendWind = new DisplayFriendList(m_user.FriendList);
             friendWind.Show(); 
         }
 
@@ -119,6 +111,30 @@ namespace DistributedGameGUI
         {
             HeroSelect heroWind = new HeroSelect();
             heroWind.Show();
+        }
+
+        public void NotifyPlayerDied()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NotifyGameEnded()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnCompleteVerifyUsers(bool result, User user)
+        {
+            if (result)
+            {
+                MessageBox.Show("Login Successful");
+                m_user = user;
+            }
+            else
+            {
+                MessageBox.Show("Unable to login, Please try again");
+                Login();
+            }
         }
     }
 }

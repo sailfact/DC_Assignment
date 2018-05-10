@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,9 +17,8 @@ namespace DistributedGamePortal
     class DGPortalControllerImpl : IDGPortalController
     {
         private IDGDataController m_database;
-        private User m_user;
         private ServerList m_serverList;
-        private IDGPortalControllerCallback m_callback;
+        private delegate bool VerifyOperation(string username, string password, out User user);
         /// <summary>
         /// Constructor
         /// Connects to the data base
@@ -39,8 +39,7 @@ namespace DistributedGamePortal
                 channelFactory = new ChannelFactory<IDGDataController>(tcpBinding, url);   // bind url to channel factory
 
                 m_database = channelFactory.CreateChannel();  // create database on remote server
-                m_user = null;
-                m_callback = OperationContext.Current.GetCallbackChannel<IDGPortalControllerCallback>();
+                m_serverList = new ServerList();
             }
             catch (ArgumentNullException e1)
             {
@@ -68,25 +67,6 @@ namespace DistributedGamePortal
         {
             m_serverList.AddServer(server);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public FriendList GetFriendList()
-        {
-            return m_user != null ? m_user.FriendList : null;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public int GetServerID()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -102,11 +82,10 @@ namespace DistributedGamePortal
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public bool VerifyUser(string username, string password, out int clientID)
+        public bool VerifyUser(string username, string password, out User user)
         {
             string errMsg = null;
-            m_user = null;
-            clientID = -1;
+            user = null;
             for (int i = 0; i < m_database.GetNumHeroes(out errMsg); i ++)
             {
                 if (m_database.GetUsernamePassword(i, out string un, out string pw, out errMsg))
@@ -114,8 +93,7 @@ namespace DistributedGamePortal
                     if (username == un && password == pw)
                     {
                         FriendList list = new FriendList(m_database.GetFriendsByID(i, out errMsg));
-                        m_user = new User(i, un, pw, list);
-                        clientID = 1;
+                        user = new User(i, un, pw, list);
                         return true;
                     }
                 }
@@ -127,6 +105,60 @@ namespace DistributedGamePortal
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        public void VerifyUserAsync(string username, string password)
+        {
+            VerifyOperation del = VerifyUser;
+            AsyncCallback callback = this.VerifyUser_OnComplete;
+
+            del.BeginInvoke(username, password, out User user, callback, OperationContext.Current.GetCallbackChannel<IDGPortalControllerCallback>());
+            Console.WriteLine("Waiting for Verification...");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="res"></param>
+        private void VerifyUser_OnComplete(IAsyncResult res)
+        {
+            bool iResult = false;
+            VerifyOperation del;
+            IDGPortalControllerCallback ob = null;
+            AsyncResult asyncObj = (AsyncResult)res;
+            User user = null;
+
+            try
+            {
+                if (asyncObj.EndInvokeCalled == false)
+                {
+                    del = (VerifyOperation)asyncObj.AsyncDelegate;
+                    ob = (IDGPortalControllerCallback)asyncObj.AsyncState;
+                    iResult = del.EndInvoke(out user, asyncObj);
+                }
+                asyncObj.AsyncWaitHandle.Close();
+                Console.WriteLine("Verification Complete.");
+                ob.OnCompleteVerifyUsers(iResult, user);
+            }
+            catch (CommunicationException e)
+            {
+                Console.WriteLine("\nError: Sending Verification to Client\n" + e.Message);
+            }
+        }
+
+        public Server GetServerInfo()
+        {
+            int id = m_serverList.ServerCount + 1;
+            string name = "DGServer" + id;
+            string url = "net.tcp://localhost:5003/" + name;
+            Server server = new Server(id, url, name);
+            m_serverList.AddServer(server);
+            return server;
         }
     }
 }

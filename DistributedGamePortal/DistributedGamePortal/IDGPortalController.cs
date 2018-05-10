@@ -11,14 +11,14 @@ namespace DistributedGamePortal
     public interface IDGPortalController
     {
         [OperationContract]
-        bool VerifyUser(string username, string password, out int clientID);
+        bool VerifyUser(string username, string password, out User user);
+
+        [OperationContract]
+        void VerifyUserAsync(string username, string password);
+
+        [OperationContract]
+        Server GetServerInfo();
         
-        [OperationContract]
-        int GetServerID();
-
-        [OperationContract]
-        FriendList GetFriendList();
-
         [OperationContract]
         ServerList GetServerList();
 
@@ -30,6 +30,6 @@ namespace DistributedGamePortal
     public interface IDGPortalControllerCallback
     {
         [OperationContract(IsOneWay = true)]
-        void AddUser(User newUser);
+        void OnCompleteVerifyUsers(bool result, User user);
     }
 }
