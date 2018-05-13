@@ -86,7 +86,7 @@ namespace DistributedGameServer
         /// </summary>
         public void ConnectToPortal()
         {
-            DuplexChannelFactory<IDGPortalController> channelFactory;
+            ChannelFactory<IDGPortalController> channelFactory;
 
             NetTcpBinding tcpBinding = new NetTcpBinding();
             string url = "net.tcp://localhost:50002/DGPortal";
@@ -97,7 +97,7 @@ namespace DistributedGameServer
                 tcpBinding.ReaderQuotas.MaxArrayLength = System.Int32.MaxValue;
 
                 // bind channel to url
-                channelFactory = new DuplexChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
+                channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
 
                 m_portal = channelFactory.CreateChannel();  
             }

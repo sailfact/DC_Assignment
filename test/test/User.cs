@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DistributedGamePortal
+namespace test
 {
     [DataContract]
     public class User
@@ -18,11 +18,11 @@ namespace DistributedGamePortal
 
         [DataMember]
         public string Password { get; set; }
-        
+
         [DataMember]
         public FriendList FriendList { get; set; }
 
-        public User(int id, string username, string passwd,  FriendList friendList)
+        public User(int id, string username, string passwd, FriendList friendList)
         {
             this.UserID = id;
             this.UserName = username;

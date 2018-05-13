@@ -86,7 +86,7 @@ namespace DistributedGamePortal
         {
             string errMsg = null;
             user = null;
-            for (int i = 0; i < m_database.GetNumHeroes(out errMsg); i ++)
+            for (int i = 0; i < m_database.GetNumUsers(out errMsg); i ++)
             {
                 if (m_database.GetUsernamePassword(i, out string un, out string pw, out errMsg))
                 {
@@ -106,56 +106,12 @@ namespace DistributedGamePortal
 
             return false;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        public void VerifyUserAsync(string username, string password)
-        {
-            VerifyOperation del = VerifyUser;
-            AsyncCallback callback = this.VerifyUser_OnComplete;
-
-            del.BeginInvoke(username, password, out User user, callback, OperationContext.Current.GetCallbackChannel<IDGPortalControllerCallback>());
-            Console.WriteLine("Waiting for Verification...");
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="res"></param>
-        private void VerifyUser_OnComplete(IAsyncResult res)
-        {
-            bool iResult = false;
-            VerifyOperation del;
-            IDGPortalControllerCallback ob = null;
-            AsyncResult asyncObj = (AsyncResult)res;
-            User user = null;
-
-            try
-            {
-                if (asyncObj.EndInvokeCalled == false)
-                {
-                    del = (VerifyOperation)asyncObj.AsyncDelegate;
-                    ob = (IDGPortalControllerCallback)asyncObj.AsyncState;
-                    iResult = del.EndInvoke(out user, asyncObj);
-                }
-                asyncObj.AsyncWaitHandle.Close();
-                Console.WriteLine("Verification Complete.");
-                ob.OnCompleteVerifyUsers(iResult, user);
-            }
-            catch (CommunicationException e)
-            {
-                Console.WriteLine("\nError: Sending Verification to Client\n" + e.Message);
-            }
-        }
-
+        
         public Server GetServerInfo()
         {
             int id = m_serverList.ServerCount + 1;
             string name = "DGServer" + id;
-            string url = "net.tcp://localhost:5003/" + name;
+            string url = "net.tcp://localhost:50003/" + name;
             Server server = new Server(id, url, name);
             m_serverList.AddServer(server);
             return server;

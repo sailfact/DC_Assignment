@@ -15,40 +15,50 @@ namespace test
 
         public static void Main(string[] args)
         {
-            openfile();
             ConnectDB();
-            string username, password, err;
-            int users = dataController.GetNumUsers(out err);
-            int heros = dataController.GetNumHeroes(out err);
-            int bosses = dataController.GetNumBosses(out err);
-        
+            string username = "Ross";
+            string password = "password";
+            User user;
+            string err = null;
 
-            Console.WriteLine("Users = {0}, heros = {1}, bosses = {2}", users, heros, bosses);
-
-            for (int i = 0; i < dataController.GetNumUsers(out err); i++)
+            for (int i = 0; i < dataController.GetNumUsers(out err); i ++)
             {
-                List<string> list = dataController.GetFriendsByID(i, out err);
-                list.ForEach(delegate (String name)
-                {
-                    Console.WriteLine(name);
-                }); 
-
+                dataController.GetUsernamePassword(i, out string un, out string pw, out err);
+                Console.WriteLine("Username : {0}, Password : {1}", un, pw);
             }
 
-            for (int i = 0; i < heros; i ++)
+            if (VerifyUser(username, password, out user))
+                Console.WriteLine(user.UserName);
+            else
+                Console.WriteLine("fail");
+
+
+            Console.ReadKey();
+        }
+
+        public static bool VerifyUser(string username, string password, out User user)
+        {
+            string errMsg = null;
+            user = null;
+            for (int i = 0; i < dataController.GetNumUsers(out errMsg); i++)
             {
-                string name = dataController.GetHeroNameByID(i, out err);
-                dataController.GetHeroStatsByID(i, out int def, out int hp, out int moveNum, out err);
-                Console.WriteLine(name.ToString());
-                Console.WriteLine("def = {0}, hp = {1}, moveNum = {2}", def, hp, moveNum);
-                for (int j = 0; j < moveNum; j++)
+                if (dataController.GetUsernamePassword(i, out string un, out string pw, out errMsg))
                 {
-                    dataController.GetMovesByIDAndIndex(i, j, out int val, out string desc, out char type, out char targ, out err);
-                    Console.WriteLine("value = {0}\n{1}\ntype = {2}\ntarg = {3}", val, desc, type, targ);
+                    if (username == un && password == pw)
+                    {
+                        FriendList list = new FriendList(dataController.GetFriendsByID(i, out errMsg));
+                        user = new User(i, un, pw, list);
+                        return true;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(errMsg);
+                    return false;
                 }
             }
 
-            Console.ReadKey();
+            return false;
         }
 
         public static void ConnectDB()
@@ -65,11 +75,6 @@ namespace test
             channelFactory = new ChannelFactory<IDGDataController>(tcpBinding, url);   // bind url to channel factory
 
             dataController = channelFactory.CreateChannel();
-        }
-
-        public static void openfile()
-        {
-            FileStream fs = new FileStream("C:/MMORPG_DB/highly_secure_user_file.txt", FileMode.Open, FileAccess.Read);
         }
     }
 }

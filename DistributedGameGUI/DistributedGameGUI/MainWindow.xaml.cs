@@ -23,7 +23,7 @@ namespace DistributedGameGUI
     /// </summary>
     [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple,
                       UseSynchronizationContext = false)]
-    public partial class MainWindow : Window, IDGPortalControllerCallback, IDGServerControllerCallback
+    public partial class MainWindow : Window, IDGServerControllerCallback
     {
         private IDGPortalController m_portal;
         private IDGServerController m_server;
@@ -66,10 +66,24 @@ namespace DistributedGameGUI
         private void Login()
         {
             LoginWindow loginWind = new LoginWindow();
-            if (loginWind.ShowDialog() == true)
+            bool done = true;
+            do
             {
-                m_portal.VerifyUserAsync(loginWind.GetUsername(), loginWind.GetPassword());
+                if (loginWind.ShowDialog() == true)
+                {
+                    if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword(), out User user))
+                    {
+                        MessageBox.Show("Login Successful.");
+                        m_user = user;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Unable to Login.");
+                        done = false;
+                    }
+                }
             }
+            while (!done);
         } 
 
         private void MenuItem_Friends(object sender, RoutedEventArgs e)
