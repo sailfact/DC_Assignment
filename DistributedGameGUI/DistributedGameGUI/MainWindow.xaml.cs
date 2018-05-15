@@ -45,6 +45,7 @@ namespace DistributedGameGUI
                 channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
                 m_portal = channelFactory.CreateChannel();  // create portal on remote server
                 Login();
+                SelectServer();
             }
             catch (ArgumentNullException)
             {
@@ -85,6 +86,11 @@ namespace DistributedGameGUI
             }
             while (!done);
         } 
+
+        private void SelectServer()
+        {
+            ServerSelect select = new ServerSelect(m_portal.GetServerList());
+        }
 
         private void MenuItem_Friends(object sender, RoutedEventArgs e)
         {
@@ -135,20 +141,6 @@ namespace DistributedGameGUI
         public void NotifyGameEnded()
         {
             throw new NotImplementedException();
-        }
-
-        public void OnCompleteVerifyUsers(bool result, User user)
-        {
-            if (result)
-            {
-                MessageBox.Show("Login Successful");
-                m_user = user;
-            }
-            else
-            {
-                MessageBox.Show("Unable to login, Please try again");
-                Login();
-            }
         }
     }
 }
