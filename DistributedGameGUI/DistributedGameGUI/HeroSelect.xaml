@@ -7,6 +7,13 @@
         mc:Ignorable="d"
         Title="HeroSelect" Height="450" Width="800">
     <Grid>
-        
+        <ListView x:Name="listView" HorizontalAlignment="Left" Height="303" Margin="60,47,0,0" VerticalAlignment="Top" Width="678">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
     </Grid>
 </Window>

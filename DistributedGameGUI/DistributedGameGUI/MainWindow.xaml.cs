@@ -46,7 +46,6 @@ namespace DistributedGameGUI
                 channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
                 m_portal = channelFactory.CreateChannel();  // create portal on remote server
                 ServerList list = m_portal.GetServerList();
-                MessageBox.Show(list.ServerCount.ToString());
 
                 Login();
                 if (m_user != null)

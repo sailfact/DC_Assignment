@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DistributedGameGUI"
         mc:Ignorable="d"
-        Title="ServerSelect" Height="450" Width="800">
+        Title="ServerSelect" Height="454.8" Width="629.6">
     <Grid>
-        <ListView x:Name="IvwServer" HorizontalAlignment="Center" Height="Auto" Margin="30,30,30,30" VerticalAlignment="Center" Width="Auto" ItemsSource="{Binding Source=server}" SelectionChanged="IvwHistory_SelectionChanged">
+        <ListView x:Name="IvwServer" HorizontalAlignment="Center" Height="300" Margin="30,43,30,70" VerticalAlignment="Center" Width="Auto" ItemsSource="{Binding Source=Servers}" SelectionChanged="IvwHistory_SelectionChanged">
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
                     <GridViewColumn x:Name="ServerID" Header="ID" Width="187" DisplayMemberBinding="{Binding ServerID}"/>

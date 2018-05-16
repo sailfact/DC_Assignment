@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
 using System.Text;
@@ -11,7 +12,7 @@ using DistributedGameServer;
 
 namespace DistributedGamePortal
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession,
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
                      ConcurrencyMode = ConcurrencyMode.Multiple,
                      UseSynchronizationContext = false)]
     class DGPortalControllerImpl : IDGPortalController
@@ -63,6 +64,7 @@ namespace DistributedGamePortal
         /// 
         /// </summary>
         /// <param name="server"></param>
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void AddServerInfo(Server server)
         {
             m_serverList.AddServer(server);
@@ -82,6 +84,7 @@ namespace DistributedGamePortal
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public bool VerifyUser(string username, string password, out User user)
         {
             string errMsg = null;
@@ -106,7 +109,8 @@ namespace DistributedGamePortal
 
             return false;
         }
-        
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public Server GetServerInfo()
         {
             int id = m_serverList.ServerCount + 1;

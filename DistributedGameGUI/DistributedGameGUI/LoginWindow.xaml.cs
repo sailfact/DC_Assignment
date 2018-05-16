@@ -29,7 +29,7 @@ namespace DistributedGameGUI
         private void Login_button_Click(object sender, RoutedEventArgs e)
         {
             m_username = usernameBox.Text;
-            m_password = passwdBox.Text;
+            m_password = passwordBox.Password;
             DialogResult = true;
             this.Close();
         }
