@@ -30,7 +30,8 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// Window_Loaded
+        /// binds the server list to the list view
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -41,19 +42,24 @@ namespace DistributedGameGUI
 
         private void BtnOk_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = true;            // future functionality
+            DialogResult = true;           
             this.Close();
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;            // future functionality
+            DialogResult = false;           
             this.Close();
         }
 
         private void IvwHistory_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            m_server = IvwServer.
+            m_server = (Server)IvwServer.SelectedItems;
+        }
+
+        public Server GetServer()
+        {
+            return m_server;
         }
     }
 }

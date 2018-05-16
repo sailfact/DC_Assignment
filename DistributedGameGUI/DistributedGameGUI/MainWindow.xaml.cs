@@ -30,6 +30,7 @@ namespace DistributedGameGUI
         private User m_user;
         public MainWindow()
         {
+            m_user = null;
             m_portal = null;
             m_server = null;
         }
@@ -44,8 +45,12 @@ namespace DistributedGameGUI
             {
                 channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
                 m_portal = channelFactory.CreateChannel();  // create portal on remote server
+                ServerList list = m_portal.GetServerList();
+                MessageBox.Show(list.ServerCount.ToString());
+
                 Login();
-                SelectServer();
+                if (m_user != null)
+                    SelectServer();
             }
             catch (ArgumentNullException)
             {
@@ -66,16 +71,18 @@ namespace DistributedGameGUI
 
         private void Login()
         {
-            LoginWindow loginWind = new LoginWindow();
+            LoginWindow loginWind = null;
             bool done = true;
             do
             {
+                loginWind = new LoginWindow();
                 if (loginWind.ShowDialog() == true)
                 {
                     if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword(), out User user))
                     {
                         MessageBox.Show("Login Successful.");
                         m_user = user;
+                        done = true;
                     }
                     else
                     {
@@ -90,9 +97,23 @@ namespace DistributedGameGUI
         private void SelectServer()
         {
             ServerSelect select = new ServerSelect(m_portal.GetServerList());
+            bool done = true;
+            do
+            {
+                if (select.ShowDialog() == true && select.GetServer() != null)
+                {
+                    ConnectToServer(select.GetServer());
+                    done = true;
+                }
+                else
+                {
+                    done = false;
+                }
+            }
+            while (!done);
         }
 
-        private void MenuItem_Friends(object sender, RoutedEventArgs e)
+        private void MenuItem_ClickFriends(object sender, RoutedEventArgs e)
         {
             DisplayFriendList friendWind = new DisplayFriendList(m_user.FriendList);
             friendWind.Show(); 
@@ -127,7 +148,7 @@ namespace DistributedGameGUI
             }
         }
 
-        private void MenuItem_Heroes(object sender, RoutedEventArgs e)
+        private void MenuItem_ClickHeroes(object sender, RoutedEventArgs e)
         {
             HeroSelect heroWind = new HeroSelect();
             heroWind.Show();
@@ -141,6 +162,11 @@ namespace DistributedGameGUI
         public void NotifyGameEnded()
         {
             throw new NotImplementedException();
+        }
+
+        private void MenuItem_ClickLogin(object sender, RoutedEventArgs e)
+        {
+            Login();
         }
     }
 }

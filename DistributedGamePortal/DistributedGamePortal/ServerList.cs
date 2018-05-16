@@ -44,8 +44,8 @@ namespace DistributedGamePortal
 
         public void AddServer(Server server)
         {
-            Servers.Add(server);
             ++ServerCount;
+            Servers.Insert(ServerCount, server);
         }
 
         public Server GetServer(int index)
