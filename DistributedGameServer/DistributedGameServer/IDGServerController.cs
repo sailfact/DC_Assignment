@@ -8,6 +8,9 @@ using DistributedGamePortal;
 
 namespace DistributedGameServer
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ServiceContract(CallbackContract = typeof(IDGServerControllerCallback))]
     public interface IDGServerController
     {
@@ -24,6 +27,9 @@ namespace DistributedGameServer
         void GetGameStats(out Boss boss, out Dictionary<User, Hero> heros);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     [ServiceContract]
     public interface IDGServerControllerCallback
     {

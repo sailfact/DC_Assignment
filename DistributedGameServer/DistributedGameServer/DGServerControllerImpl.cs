@@ -20,7 +20,7 @@ namespace DistributedGameServer
         private IDGDataController m_database;
         private List<User> m_users;
         private List<Hero> m_heroes;
-        private Dictionary<User, Hero> players;
+        private Dictionary<User, Hero> m_players;
         private Boss m_boss;
         private int m_count;
         /// <summary>
@@ -32,8 +32,9 @@ namespace DistributedGameServer
             m_users = new List<User>();
             m_count = -1;
             ConnectToDB();
+            m_boss = SelectBoss();
             m_heroes = GetHeroes();
-            players = new Dictionary<User, Hero>();
+            m_players = new Dictionary<User, Hero>();
         }
 
         /// <summary>
@@ -128,15 +129,6 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public void SetUpGame()
-        {
-            m_boss = SelectBoss();
-            m_heroes = GetHeroes();
-        }
-
-        /// <summary>
         /// SelectBoss
         /// gets a random boss from the server and 
         /// assigns it to m_boss
@@ -153,7 +145,8 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// GetHeroes
+        /// gets heroes from the database
         /// </summary>
         /// <returns></returns>
         public List<Hero> GetHeroes()
@@ -179,21 +172,40 @@ namespace DistributedGameServer
             return heroes;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hero"></param>
+        /// <param name="user"></param>
         public void SelectHero(Hero hero, User user)
         {
-            players.Add(user, hero);
+            m_players.Add(user, hero);
         }
 
-        public void GetGameStats(out Boss boss, out Dictionary<User, Hero> heros)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="boss"></param>
+        /// <param name="players"></param>
+        public void GetGameStats(out Boss boss, out Dictionary<User, Hero> players)
         {
-            throw new NotImplementedException();
+            boss = m_boss;
+            players = m_players;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public string GetServerUrl()
         {
             return m_portal.GetServerInfo().Url;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public List<Hero> GetHeroList()
         {
             return m_heroes;
