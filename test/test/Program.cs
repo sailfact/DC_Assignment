@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ServiceModel;
 using DistributedGameData;
+using DistributedGamePortal;
 using System.IO;
 
 namespace test
@@ -16,7 +17,7 @@ namespace test
         public static void Main(string[] args)
         {
             ConnectDB();
-            string username = "Ross";
+            string username = "ross";
             string password = "password";
             User user;
             string err = null;
@@ -27,11 +28,12 @@ namespace test
                 Console.WriteLine("Username : {0}, Password : {1}", un, pw);
             }
 
-            if (VerifyUser(username, password, out user))
-                Console.WriteLine(user.UserName);
-            else
-                Console.WriteLine("fail");
-
+            VerifyUser(username, password, out user);
+                
+            foreach(string name in user.FriendList.Friends)
+            {
+                Console.WriteLine(name);
+            }
 
             Console.ReadKey();
         }

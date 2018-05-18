@@ -25,8 +25,9 @@ namespace DistributedGameGUI
 
         public ServerSelect(ServerList serverList)
         {
-            this.m_serverList = serverList;
+            m_serverList = serverList;
             InitializeComponent();
+            this.DataContext = m_serverList.Servers;
         }
 
         /// <summary>
@@ -52,9 +53,9 @@ namespace DistributedGameGUI
             this.Close();
         }
 
-        private void IvwHistory_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void IvwServer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            m_server = (Server)IvwServer.SelectedItems;
+            m_server = (Server)e.AddedItems[0];
         }
 
         public Server GetServer()

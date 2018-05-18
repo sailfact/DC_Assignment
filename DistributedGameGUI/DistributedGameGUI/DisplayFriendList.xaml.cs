@@ -24,7 +24,9 @@ namespace DistributedGameGUI
         public DisplayFriendList(FriendList friends)
         {
             m_friendList = friends;
+            MessageBox.Show( m_friendList.Friends[0] );
             InitializeComponent();
+            this.DataContext = m_friendList.Friends;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

@@ -15,6 +15,9 @@ namespace DistributedGameServer
         void SelectHero(Hero hero);
 
         [OperationContract]
+        List<Hero> GetHeroList();
+
+        [OperationContract]
         void GetGameStats(out Boss boss, out Dictionary<User, Hero> heros);
     }
 

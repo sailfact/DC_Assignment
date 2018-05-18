@@ -115,7 +115,7 @@ namespace DistributedGamePortal
         {
             int id = m_serverList.ServerCount + 1;
             string name = "DGServer" + id;
-            string url = "net.tcp://localhost:50003/" + name;
+            string url = "net.tcp://localhost:6"+id.ToString("0000")+"/" + name;
             Server server = new Server(id, url, name);
             m_serverList.AddServer(server);
             return server;

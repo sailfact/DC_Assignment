@@ -45,11 +45,14 @@ namespace DistributedGameGUI
             {
                 channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
                 m_portal = channelFactory.CreateChannel();  // create portal on remote server
-                ServerList list = m_portal.GetServerList();
 
                 Login();
-                if (m_user != null)
-                    SelectServer();
+          
+                SelectServer();
+                if (m_server != null)
+                {
+                    SelectHero();
+                }
             }
             catch (ArgumentNullException)
             {
@@ -147,10 +150,18 @@ namespace DistributedGameGUI
             }
         }
 
+        private void SelectHero()
+        {
+            if (m_server != null)
+            {
+                HeroSelect heroWind = new HeroSelect(m_server.GetHeroList());
+                heroWind.Show();
+            }
+        }
+
         private void MenuItem_ClickHeroes(object sender, RoutedEventArgs e)
         {
-            HeroSelect heroWind = new HeroSelect();
-            heroWind.Show();
+            SelectHero();
         }
 
         public void NotifyPlayerDied()

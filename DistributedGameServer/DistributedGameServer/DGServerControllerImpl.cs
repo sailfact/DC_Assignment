@@ -190,5 +190,10 @@ namespace DistributedGameServer
         {
             return m_portal.GetServerInfo().Url;
         }
+
+        public List<Hero> GetHeroList()
+        {
+            return m_heroes;
+        }
     }
 }

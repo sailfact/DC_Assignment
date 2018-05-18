@@ -5,12 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DistributedGameGUI"
         mc:Ignorable="d"
-        Title="HeroSelect" Height="450" Width="800">
+        Title="HeroSelect" Height="450" Width="800" Loaded="Window_Loaded">
     <Grid>
-        <ListView x:Name="listView" HorizontalAlignment="Left" Height="303" Margin="60,47,0,0" VerticalAlignment="Top" Width="678">
+        <ListView x:Name="IvwHeroes" HorizontalAlignment="Left" Height="303" Margin="60,47,0,0" VerticalAlignment="Top" Width="678" ItemsSource="{Binding}"  SelectionChanged="listView_SelectionChanged">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn/>
+                    <GridViewColumn x:Name="HeroName" Header="Name" Width="200" DisplayMemberBinding="{Binding HeroName}"/>
+                    <GridViewColumn x:Name="HealthPoints" Header="HP" Width="200" DisplayMemberBinding="{Binding MaxHealthPoints}"/>
+                    <GridViewColumn x:Name="Defence" Header="Defence" Width="200" DisplayMemberBinding="{Binding Defence}"/>
                 </GridView>
             </ListView.View>
         </ListView>
