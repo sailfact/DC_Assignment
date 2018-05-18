@@ -12,7 +12,10 @@ namespace DistributedGameServer
     public interface IDGServerController
     {
         [OperationContract]
-        void SelectHero(Hero hero);
+        void SelectHero(Hero hero, User user);
+
+        [OperationContract]
+        void AddUser(User newUser);
 
         [OperationContract]
         List<Hero> GetHeroList();

@@ -20,6 +20,7 @@ namespace DistributedGameServer
         private IDGDataController m_database;
         private List<User> m_users;
         private List<Hero> m_heroes;
+        private Dictionary<User, Hero> players;
         private Boss m_boss;
         private int m_count;
         /// <summary>
@@ -31,6 +32,8 @@ namespace DistributedGameServer
             m_users = new List<User>();
             m_count = -1;
             ConnectToDB();
+            m_heroes = GetHeroes();
+            players = new Dictionary<User, Hero>();
         }
 
         /// <summary>
@@ -176,9 +179,9 @@ namespace DistributedGameServer
             return heroes;
         }
 
-        public void SelectHero(Hero hero)
+        public void SelectHero(Hero hero, User user)
         {
-            throw new NotImplementedException();
+            players.Add(user, hero);
         }
 
         public void GetGameStats(out Boss boss, out Dictionary<User, Hero> heros)

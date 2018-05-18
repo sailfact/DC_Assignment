@@ -132,6 +132,7 @@ namespace DistributedGameGUI
             {
                 channelFactory = new DuplexChannelFactory<IDGServerController>(new InstanceContext(this), tcpBinding, url);   // bind url to channel factory
                 m_server = channelFactory.CreateChannel();  // create portal on remote server
+                m_server.AddUser(m_user);
             }
             catch (ArgumentNullException)
             {
@@ -154,8 +155,26 @@ namespace DistributedGameGUI
         {
             if (m_server != null)
             {
-                HeroSelect heroWind = new HeroSelect(m_server.GetHeroList());
-                heroWind.Show();
+                HeroSelect heroWind = null;
+                Hero hero = null;
+                bool done = true;
+                do
+                {
+                    if (heroWind.ShowDialog() == true)
+                    {
+                        heroWind = new HeroSelect(m_server.GetHeroList());
+                        if ((hero = heroWind.GetHero()) != null)
+                        {
+                            m_server.SelectHero(hero, m_user);
+                            done = true;
+                        }
+                        else
+                        {
+                            done = false;
+                        }
+                    }
+                }
+                while (!done);
             }
         }
 
