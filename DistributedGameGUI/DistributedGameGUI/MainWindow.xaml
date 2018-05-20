@@ -5,12 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DistributedGameGUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="520" Width="900" Loaded="Window_Loaded">
+        Title="MainWindow" Height="720" Width="1280" Loaded="Window_Loaded">
     <Grid>
         <Menu x:Name="menu" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
             <MenuItem Header="Friends" Height="16" Width="52" Click="MenuItem_ClickFriends"/>
             <MenuItem Header="Heroes" Height="16" Width="51" Click="MenuItem_ClickHeroes"/>
             <MenuItem Header="Login" Height="16" Width="51" Click="MenuItem_ClickLogin"/>
         </Menu>
+        
+        <Label Content="Heroes" HorizontalAlignment="Left" Margin="70,100,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.105,0.231" FontSize="15"/>
+        <ListView HorizontalAlignment="Left" Height="auto" Margin="70,125,0,0" VerticalAlignment="Top" Width="300">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Label Content="Boss" HorizontalAlignment="Right" Margin="0,80,300,0" VerticalAlignment="Top" FontSize="20"/>
+        <Label Content="Name" HorizontalAlignment="Right" Margin="0,100,300,0" VerticalAlignment="Top" FontSize="20"/>
+        <Label Content="HP" HorizontalAlignment="Right" Margin="0,280,300,0" VerticalAlignment="Top" FontSize="20"/>
+        <Label Content="Def" HorizontalAlignment="Right" Margin="0,380,300,0" VerticalAlignment="Top" FontSize="20"/>
+
     </Grid>
 </Window>

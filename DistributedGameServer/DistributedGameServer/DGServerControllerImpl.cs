@@ -16,6 +16,7 @@ namespace DistributedGameServer
                      UseSynchronizationContext = false)]
     class DGServerControllerImpl : IDGServerController
     {
+        private delegate void GameOperation();
         private IDGPortalController m_portal;
         private IDGDataController m_database;
         private List<User> m_users;
@@ -209,6 +210,102 @@ namespace DistributedGameServer
         public List<Hero> GetHeroList()
         {
             return m_heroes;
+        }
+
+        private void Game()
+        {
+            char strategy = m_boss.TargetStrategy;
+            Random rnd = new Random();
+            int index, value;
+            User curUser;
+            char target, type;
+            while (m_boss.HealthPoints != 0 && AreAlive())
+            {
+                // boss turn
+                if (strategy == 'R') // attack random
+                {
+                    index = rnd.Next(m_players.Count);
+                    m_players.ElementAt(index).Value.TakeDamage(m_boss.Attack());
+                }
+                else if (strategy == 'H')   // attack highest damage
+                {   // for now attack first hero
+                    m_players.ElementAt(0).Value.TakeDamage(m_boss.Attack());
+                }
+
+                // player turns
+                foreach (var player in m_players)
+                {
+                    curUser = player.Key;
+                    if (player.Value.HealthPoints != 0)
+                    {
+                        OperationContext.Current.GetCallbackChannel<IDGServerControllerCallback>().TakeTurn(curUser, out int abilityIdx, out int targetIdx);
+
+                        value = player.Value.UseAbility(abilityIdx, out type, out target);
+
+                        if (target == 'M')
+                        {
+                            if (type == 'H')
+                            {
+                                HealMulti(value);
+                            }
+                            else if (type == 'D')
+                            {
+                                m_boss.TakeDamage(value); 
+                            }
+                        }
+                        else if (target == 'S')
+                        {
+                            if (type == 'H')
+                            {
+                                HealHero(targetIdx, value);
+                            }
+                            else if (type == 'D')
+                            {
+                                m_boss.TakeDamage(value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private bool AreAlive()
+        {
+            foreach(var player in m_players)
+            {
+                if (player.Value.HealthPoints != 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        private void HealMulti(int value)
+        {
+            foreach(var player in m_players)
+            {
+                player.Value.Heal(value);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="value"></param>
+        private void HealHero(int index, int value)
+        {
+            m_players.ElementAt(index).Value.Heal(value);
         }
     }
 }

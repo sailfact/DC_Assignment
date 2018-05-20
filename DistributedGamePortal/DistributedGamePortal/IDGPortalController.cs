@@ -4,13 +4,14 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Security;
 
 namespace DistributedGamePortal
 {
     [ServiceContract]
     public interface IDGPortalController
     {
-        [OperationContract]
+        [OperationContract(ProtectionLevel = ProtectionLevel.EncryptAndSign)]
         bool VerifyUser(string username, string password, out User user);
 
         [OperationContract]

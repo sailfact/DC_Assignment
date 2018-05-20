@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace DistributedGameGUI
                       UseSynchronizationContext = false)]
     public partial class MainWindow : Window, IDGServerControllerCallback
     {
+        private delegate bool Verify(string username, string password, out User user);
         private IDGPortalController m_portal;
         private IDGServerController m_server;
         private User m_user;
@@ -38,21 +40,14 @@ namespace DistributedGameGUI
         public void Window_Loaded(object sender, RoutedEventArgs e)
         { 
             ChannelFactory<IDGPortalController> channelFactory;
-
             NetTcpBinding tcpBinding = new NetTcpBinding();
             string url = "net.tcp://localhost:50002/DGPortal";
             try
             {
                 channelFactory = new ChannelFactory<IDGPortalController>(tcpBinding, url);   // bind url to channel factory
                 m_portal = channelFactory.CreateChannel();  // create portal on remote server
-
+                
                 Login();
-          
-                SelectServer();
-                if (m_server != null)
-                {
-                    SelectHero();
-                }
             }
             catch (ArgumentNullException)
             {
@@ -75,27 +70,56 @@ namespace DistributedGameGUI
         {
             LoginWindow loginWind = null;
             bool done = true;
-            do
+            Verify verify = m_portal.VerifyUser;
+            AsyncCallback callback = this.LoginOnComplete;
+            
+            loginWind = new LoginWindow();
+            if (loginWind.ShowDialog() == true)
             {
-                loginWind = new LoginWindow();
-                if (loginWind.ShowDialog() == true)
-                {
-                    if (m_portal.VerifyUser(loginWind.GetUsername(), loginWind.GetPassword(), out User user))
-                    {
-                        MessageBox.Show("Login Successful.");
-                        m_user = user;
-                        done = true;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Unable to Login.");
-                        done = false;
-                    }
-                }
+                verify.BeginInvoke(loginWind.GetUsername(), loginWind.GetPassword(), out User user, callback, null);
             }
-            while (!done);
         } 
 
+        /// <summary>
+        /// LoginOnComplete
+        /// Callback function for Login
+        /// </summary>
+        /// <param name="res"></param>
+        private void LoginOnComplete(IAsyncResult res)
+        {
+            bool result = false;
+            Verify del;
+            User user = null;
+            AsyncResult asyncObj = (AsyncResult)res;
+
+            if (asyncObj.EndInvokeCalled == false)
+            {
+                del = (Verify)asyncObj.AsyncDelegate;
+                result = del.EndInvoke(out user, asyncObj);
+            }
+            asyncObj.AsyncWaitHandle.Close();
+
+            if (result)
+            {
+                MessageBox.Show("Login Successful.");
+                m_user = user;
+
+                SelectServer();
+                if (m_server != null)
+                {
+                    SelectHero();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Unable to Login.");
+                Login();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void SelectServer()
         {
             ServerSelect select = new ServerSelect(m_portal.GetServerList());
@@ -115,12 +139,21 @@ namespace DistributedGameGUI
             while (!done);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuItem_ClickFriends(object sender, RoutedEventArgs e)
         {
             DisplayFriendList friendWind = new DisplayFriendList(m_user.FriendList);
             friendWind.Show(); 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newServer"></param>
         private void ConnectToServer(Server newServer)
         {
             DuplexChannelFactory<IDGServerController> channelFactory;
@@ -151,6 +184,9 @@ namespace DistributedGameGUI
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void SelectHero()
         {
             if (m_server != null)
@@ -160,9 +196,9 @@ namespace DistributedGameGUI
                 bool done = true;
                 do
                 {
+                    heroWind = new HeroSelect(m_server.GetHeroList());
                     if (heroWind.ShowDialog() == true)
-                    {
-                        heroWind = new HeroSelect(m_server.GetHeroList());
+                    {    
                         if ((hero = heroWind.GetHero()) != null)
                         {
                             m_server.SelectHero(hero, m_user);
@@ -178,21 +214,37 @@ namespace DistributedGameGUI
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuItem_ClickHeroes(object sender, RoutedEventArgs e)
         {
             SelectHero();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void NotifyPlayerDied()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void NotifyGameEnded()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuItem_ClickLogin(object sender, RoutedEventArgs e)
         {
             Login();

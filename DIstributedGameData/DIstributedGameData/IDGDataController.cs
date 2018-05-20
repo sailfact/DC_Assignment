@@ -4,13 +4,14 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Security;
 
 namespace DistributedGameData
 {
     [ServiceContract]
     public interface IDGDataController
     {
-        [OperationContract]
+        [OperationContract(ProtectionLevel = ProtectionLevel.EncryptAndSign]
         bool GetUsernamePassword(int id, out string username, out string passwd, out string errMsg);
 
         [OperationContract]

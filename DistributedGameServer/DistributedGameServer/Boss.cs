@@ -45,10 +45,9 @@ namespace DistributedGameServer
             this.TargetStrategy = strat;
         }
 
-        public int Attack(out char strategy)
+        public int Attack()
         {
             Random random = new Random();
-            strategy = TargetStrategy;
             return random.Next(Damage / 2, Damage + 1);
         }
 
