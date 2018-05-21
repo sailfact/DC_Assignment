@@ -1,0 +1,28 @@
+﻿<Window x:Class="DistributedGameGUI.TakeTurn"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DistributedGameGUI"
+        mc:Ignorable="d"
+        Title="TakeTurn" Height="230" Width="520"
+        Loaded="Window_Loaded">
+    <Grid Height="199" VerticalAlignment="Top">
+        <ListView x:Name="IvwAbilities" HorizontalAlignment="Left" Height="auto" Margin="50,20,0,0" VerticalAlignment="Top" Width="auto" ItemsSource="{Binding}" SelectionChanged="IvwAbilities_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn x:Name="AbilityID" Header="ID" Width="50" DisplayMemberBinding="{Binding AbilityID}"/>
+                    <GridViewColumn x:Name="AbilityName" Header="Name" Width="50" DisplayMemberBinding="{Binding AbilityName}"/>
+                    <GridViewColumn x:Name="Value" Header="Value" Width="50" DisplayMemberBinding="{Binding Value}"/>
+                    <GridViewColumn x:Name="Type" Header="Type" Width="50" DisplayMemberBinding="{Binding Type}"/>
+                    <GridViewColumn x:Name="Target" Header="Target" Width="50" DisplayMemberBinding="{Binding Target}"/>
+                    <GridViewColumn x:Name="Description" Header="Description" Width="150" DisplayMemberBinding="{Binding Description}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBox x:Name="TxtBox" HorizontalAlignment="Left" Height="23" Margin="100,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" Width="50" RenderTransformOrigin="1.56,0.71" TextChanged="TextBox_TextChanged"/>
+        <Label Content="Target" HorizontalAlignment="Left" Margin="50,0,0,0" VerticalAlignment="Bottom" RenderTransformOrigin="0.395,0.795"/>
+        <Button Content="Ok" HorizontalAlignment="Left" Margin="156,0,0,0" VerticalAlignment="Bottom" Width="48" Click="Button_Click"/>
+
+    </Grid>
+</Window>

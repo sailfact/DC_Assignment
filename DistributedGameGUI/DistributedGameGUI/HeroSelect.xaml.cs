@@ -22,6 +22,9 @@ namespace DistributedGameGUI
     {
         private List<Hero> m_heroes;
         private Hero m_hero;
+
+        public Hero Hero { get { return m_hero; } }
+
         public HeroSelect(List<Hero> heroes)
         {
             m_heroes = heroes;
@@ -37,11 +40,6 @@ namespace DistributedGameGUI
         private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             m_hero = (Hero)e.AddedItems[0];
-        }
-
-        public Hero GetHero()
-        {
-            return m_hero;
         }
 
         private void BtnOk_Click(object sender, RoutedEventArgs e)

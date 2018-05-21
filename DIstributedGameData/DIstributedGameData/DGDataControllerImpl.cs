@@ -21,7 +21,7 @@ namespace DistributedGameData
         /// <summary>
         /// DGDataControllerImpl
         /// Constructer for Data Server Object calls
-        /// 'DGDLLWrapper.InitBD to initialise the DataBase
+        /// DGDLLWrapper.InitBD to initialise the DataBase
         /// </summary>
         public DGDataControllerImpl()
         {
@@ -63,7 +63,13 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossNameByID'";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossNameByID'\nDLL Not Found";
+                Console.WriteLine(errMsg);
+                return null;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossNameByID'\nArgument Out Of Range";
                 Console.WriteLine(errMsg);
                 return null;
             }
@@ -95,7 +101,13 @@ namespace DistributedGameData
             }
             catch(DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossStatsByID'";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossStatsByID'\nDLL Not Found";
+                Console.WriteLine(errMsg);
+                return false;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossStatsByID'\nArgument Out Of Range";
                 Console.WriteLine(errMsg);
                 return false;
             }
@@ -118,7 +130,13 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetFriendsByID'";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetFriendsByID'\nDLL Not Found";
+                Console.WriteLine(errMsg);
+                return null;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossNameByID'\nArgument Out Of Range";
                 Console.WriteLine(errMsg);
                 return null;
             }
@@ -141,6 +159,12 @@ namespace DistributedGameData
             catch (DllNotFoundException)
             {
                 errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroNameByID'";
+                Console.WriteLine(errMsg);
+                return null;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroNameByID'\nArgument Out Of Range";
                 Console.WriteLine(errMsg);
                 return null;
             }
@@ -167,13 +191,13 @@ namespace DistributedGameData
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : Invalid Arguments";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroStatsByID'\nArgument Out Of Range";
                 Console.WriteLine(errMsg);
                 return false;
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroStatsByID'";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroStatsByID'\nDLL Not Found";
                 Console.WriteLine(errMsg);
                 return false;
             }
@@ -182,7 +206,7 @@ namespace DistributedGameData
         }
 
         /// <summary>
-        /// 
+        /// GetMovesByIDAndIndex
         /// </summary>
         /// <param name="id"></param>
         /// <param name="index"></param>
@@ -205,13 +229,13 @@ namespace DistributedGameData
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : Invalid Argument";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetMovesByIDAndIndex'\nArgument Out Of Range";
                 Console.WriteLine(errMsg);
                 return false;
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetMovesByIDAndIndex'";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetMovesByIDAndIndex'\nDLL Not Found";
                 Console.WriteLine(errMsg);
                 return false;
             }
@@ -233,7 +257,7 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumBosses'";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumBosses'\nDLL Not Found";
                 Console.WriteLine(errMsg);
             }
 
@@ -254,7 +278,7 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumHeroes'";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumHeroes'\nDLL Not Found";
                 Console.WriteLine(errMsg);
             }
 
@@ -275,7 +299,7 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumUsers'";
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumUsers'\nDLL Not Found";
                 Console.WriteLine(errMsg);
             }
 
@@ -300,15 +324,15 @@ namespace DistributedGameData
             {
                 m_gameDB.GetUsernamePassword(id, out username, out passwd);
             }
-            catch (ArgumentOutOfRangeException e1)
+            catch (ArgumentOutOfRangeException)
             {
-                errMsg = e1.Message;
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetUsernamePassword'\nArgument Out of Range";
                 Console.WriteLine(errMsg);
                 return false;
             }
-            catch (DllNotFoundException e2)
+            catch (DllNotFoundException)
             {
-                errMsg = e2.Message;
+                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetUsernamePassword'\nDLL Not Found";
                 Console.WriteLine(errMsg);
                 return false;
             }

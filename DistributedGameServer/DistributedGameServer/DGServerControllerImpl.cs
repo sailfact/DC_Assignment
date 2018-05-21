@@ -6,13 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using DistributedGamePortal;
 using DistributedGameData;
+using System.Runtime.CompilerServices;
 
 namespace DistributedGameServer
 {
     [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, 
                      UseSynchronizationContext = false)]
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
-                     ConcurrencyMode = ConcurrencyMode.Single,
+                     ConcurrencyMode = ConcurrencyMode.Multiple,
                      UseSynchronizationContext = false)]
     class DGServerControllerImpl : IDGServerController
     {
@@ -21,7 +22,8 @@ namespace DistributedGameServer
         private IDGDataController m_database;
         private List<User> m_users;
         private List<Hero> m_heroes;
-        private Dictionary<User, Hero> m_players;
+        private Dictionary<Guid, Hero> m_players;
+        private Dictionary<Guid, IDGServerControllerCallback> m_clients;
         private Boss m_boss;
         private int m_count;
         /// <summary>
@@ -35,9 +37,9 @@ namespace DistributedGameServer
             ConnectToDB();
             m_boss = SelectBoss();
             m_heroes = GetHeroes();
-            m_players = new Dictionary<User, Hero>();
+            m_players = new Dictionary<Guid, Hero>();
+            m_clients = new Dictionary<Guid, IDGServerControllerCallback>();
         }
-
         /// <summary>
         /// AddUser 
         /// Callback function for IDGPortalContollerImpl
@@ -66,7 +68,6 @@ namespace DistributedGameServer
 
                 // bind channel to url
                 channelFactory = new ChannelFactory<IDGDataController>(tcpBinding, url);   // bind url to channel factory
-
                 m_database = channelFactory.CreateChannel();  // create database on remote server
             }
             catch (ArgumentNullException e1)
@@ -178,9 +179,9 @@ namespace DistributedGameServer
         /// </summary>
         /// <param name="hero"></param>
         /// <param name="user"></param>
-        public void SelectHero(Hero hero, User user)
+        public void SelectHero(Guid id, Hero hero)
         {
-            m_players.Add(user, hero);
+            m_players.Add(id, hero);
         }
 
         /// <summary>
@@ -188,7 +189,7 @@ namespace DistributedGameServer
         /// </summary>
         /// <param name="boss"></param>
         /// <param name="players"></param>
-        public void GetGameStats(out Boss boss, out Dictionary<User, Hero> players)
+        public void GetGameStats(out Boss boss, out Dictionary<Guid, Hero> players)
         {
             boss = m_boss;
             players = m_players;
@@ -216,8 +217,8 @@ namespace DistributedGameServer
         {
             char strategy = m_boss.TargetStrategy;
             Random rnd = new Random();
-            int index, value;
-            User curUser;
+            int index, value, abilityIdx, targIdx;
+            Guid curId;
             char target, type;
             while (m_boss.HealthPoints != 0 && AreAlive())
             {
@@ -233,36 +234,27 @@ namespace DistributedGameServer
                 }
 
                 // player turns
-                foreach (var player in m_players)
+                foreach (var client in m_clients)
                 {
-                    curUser = player.Key;
-                    if (player.Value.HealthPoints != 0)
+                    if (m_players[client.Key].HealthPoints > 0)
                     {
-                        OperationContext.Current.GetCallbackChannel<IDGServerControllerCallback>().TakeTurn(curUser, out int abilityIdx, out int targetIdx);
-
-                        value = player.Value.UseAbility(abilityIdx, out type, out target);
-
-                        if (target == 'M')
+                        do
                         {
-                            if (type == 'H')
-                            {
-                                HealMulti(value);
-                            }
-                            else if (type == 'D')
-                            {
-                                m_boss.TakeDamage(value); 
-                            }
+                            client.Value.TakeTurn(m_players[client.Key], out abilityIdx, out targIdx);
                         }
-                        else if (target == 'S')
+                        while (abilityIdx > -1 && targIdx > -1 && abilityIdx < m_players[client.Key].Abilities.Count && targIdx > m_players.Count);
+                        value = m_players[client.Key].UseAbility(abilityIdx, out type, out target);
+
+                        if (type == 'H')
                         {
-                            if (type == 'H')
-                            {
-                                HealHero(targetIdx, value);
-                            }
-                            else if (type == 'D')
-                            {
-                                m_boss.TakeDamage(value);
-                            }
+                            if (target == 'M')
+                                HealMulti(value);
+                            else if (target == 'S')
+                                HealHero(targIdx, value);
+                        }
+                        else if (type == 'D')
+                        {
+                            m_boss.TakeDamage(value);
                         }
                     }
                 }
@@ -270,7 +262,7 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// AreAlive
         /// </summary>
         /// <returns></returns>
         private bool AreAlive()
@@ -287,7 +279,7 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// HealMulti
         /// </summary>
         /// <param name="value"></param>
         private void HealMulti(int value)
@@ -299,13 +291,47 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// HealHero
         /// </summary>
         /// <param name="index"></param>
         /// <param name="value"></param>
         private void HealHero(int index, int value)
         {
             m_players.ElementAt(index).Value.Heal(value);
+        }
+        /// <summary>
+        /// Subscribe
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public Guid Subscribe()
+        {
+            IDGServerControllerCallback callback = OperationContext.Current.GetCallbackChannel<IDGServerControllerCallback>();
+            Guid clientID = Guid.NewGuid();
+
+            if (callback != null)
+            {
+                m_clients.Add(clientID, callback);
+            }
+
+            return clientID;
+        }
+        /// <summary>
+        /// Unsubscribe
+        /// </summary>
+        /// <param name="id"></param>
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void Unsubscribe(Guid id)
+        {
+            if (m_clients.ContainsKey(id))
+            {
+                m_clients.Remove(id);
+            }
+                
+            if (m_players.ContainsKey(id))
+            {
+                m_players.Remove(id);
+            }
         }
     }
 }

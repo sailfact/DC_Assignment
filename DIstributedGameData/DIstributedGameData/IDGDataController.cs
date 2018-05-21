@@ -8,10 +8,14 @@ using System.Net.Security;
 
 namespace DistributedGameData
 {
+    /// <summary>
+    /// IDGDataController
+    /// Server interface for Distributed Game Data
+    /// </summary>
     [ServiceContract]
     public interface IDGDataController
     {
-        [OperationContract(ProtectionLevel = ProtectionLevel.EncryptAndSign]
+        [OperationContract(ProtectionLevel = ProtectionLevel.EncryptAndSign)]
         bool GetUsernamePassword(int id, out string username, out string passwd, out string errMsg);
 
         [OperationContract]

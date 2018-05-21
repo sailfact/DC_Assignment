@@ -30,6 +30,12 @@ namespace DistributedGameGUI
         private IDGPortalController m_portal;
         private IDGServerController m_server;
         private User m_user;
+        private Guid m_clientID;
+
+        /// <summary>
+        /// MainWindow
+        /// Constructor 
+        /// </summary>
         public MainWindow()
         {
             m_user = null;
@@ -37,6 +43,11 @@ namespace DistributedGameGUI
             m_server = null;
         }
 
+        /// <summary>
+        /// Window_Loaded
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void Window_Loaded(object sender, RoutedEventArgs e)
         { 
             ChannelFactory<IDGPortalController> channelFactory;
@@ -66,17 +77,31 @@ namespace DistributedGameGUI
             }
         }
 
+        /// <summary>
+        /// Window_Closed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void Window_Closed(object sender, EventArgs e)
+        {
+            if (m_server != null)
+                m_server.Unsubscribe(m_clientID);
+            this.Close();
+        }
+
+        /// <summary>
+        /// Login
+        /// </summary>
         private void Login()
         {
             LoginWindow loginWind = null;
-            bool done = true;
             Verify verify = m_portal.VerifyUser;
             AsyncCallback callback = this.LoginOnComplete;
             
             loginWind = new LoginWindow();
             if (loginWind.ShowDialog() == true)
             {
-                verify.BeginInvoke(loginWind.GetUsername(), loginWind.GetPassword(), out User user, callback, null);
+                verify.BeginInvoke(loginWind.Username, loginWind.Password, out User user, callback, null);
             }
         } 
 
@@ -118,7 +143,7 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// SelectServer
         /// </summary>
         private void SelectServer()
         {
@@ -126,9 +151,9 @@ namespace DistributedGameGUI
             bool done = true;
             do
             {
-                if (select.ShowDialog() == true && select.GetServer() != null)
+                if (select.ShowDialog() == true && select.Server != null)
                 {
-                    ConnectToServer(select.GetServer());
+                    ConnectToServer(select.Server);
                     done = true;
                 }
                 else
@@ -140,7 +165,7 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// MenuItem_ClickFriends
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -151,7 +176,7 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// ConnectToServer
         /// </summary>
         /// <param name="newServer"></param>
         private void ConnectToServer(Server newServer)
@@ -165,7 +190,7 @@ namespace DistributedGameGUI
             {
                 channelFactory = new DuplexChannelFactory<IDGServerController>(new InstanceContext(this), tcpBinding, url);   // bind url to channel factory
                 m_server = channelFactory.CreateChannel();  // create portal on remote server
-                m_server.AddUser(m_user);
+                m_clientID = m_server.Subscribe();
             }
             catch (ArgumentNullException)
             {
@@ -185,7 +210,7 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// SelectHero
         /// </summary>
         private void SelectHero()
         {
@@ -199,9 +224,9 @@ namespace DistributedGameGUI
                     heroWind = new HeroSelect(m_server.GetHeroList());
                     if (heroWind.ShowDialog() == true)
                     {    
-                        if ((hero = heroWind.GetHero()) != null)
+                        if ((hero = heroWind.Hero) != null)
                         {
-                            m_server.SelectHero(hero, m_user);
+                            m_server.SelectHero(m_clientID, hero);
                             done = true;
                         }
                         else
@@ -215,7 +240,7 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// MenuItem_ClickHeroes
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -225,7 +250,7 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// NotifyPlayerDied
         /// </summary>
         public void NotifyPlayerDied()
         {
@@ -233,7 +258,7 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// NotifyGameEnded
         /// </summary>
         public void NotifyGameEnded()
         {
@@ -241,13 +266,38 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// MenuItem_ClickLogin
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void MenuItem_ClickLogin(object sender, RoutedEventArgs e)
         {
             Login();
+        }
+
+        /// <summary>
+        /// TakeTurn
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <param name="abilityIdx"></param>
+        /// <param name="targetIdx"></param>
+        public void TakeTurn(Hero hero, out int abilityIdx, out int targetIdx)
+        {
+            TakeTurn turn;
+            targetIdx = -1;
+            abilityIdx = -1;
+            turn = new TakeTurn(hero);
+
+            if (turn.ShowDialog() == true)
+            {
+                abilityIdx = turn.Ability.AbilityID;
+                targetIdx = turn.Index;
+            }
+        }
+
+        public void NotifyGameStats(Boss boss, Dictionary<User, Hero> heros)
+        {
+            throw new NotImplementedException();
         }
     }
 }

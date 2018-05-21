@@ -23,6 +23,8 @@ namespace DistributedGameGUI
         private ServerList m_serverList;
         private Server m_server;
 
+        public Server Server { get { return m_server; } }
+
         public ServerSelect(ServerList serverList)
         {
             m_serverList = serverList;
@@ -56,11 +58,6 @@ namespace DistributedGameGUI
         private void IvwServer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             m_server = (Server)e.AddedItems[0];
-        }
-
-        public Server GetServer()
-        {
-            return m_server;
         }
     }
 }

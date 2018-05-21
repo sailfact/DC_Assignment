@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DistributedGameGUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280" Loaded="Window_Loaded">
+        Title="MainWindow" Height="720" Width="1280" Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid>
         <Menu x:Name="menu" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0">
             <MenuItem Header="Friends" Height="16" Width="52" Click="MenuItem_ClickFriends"/>

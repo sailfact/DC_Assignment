@@ -21,6 +21,10 @@ namespace DistributedGameGUI
     {
         private string m_username;
         private string m_password;
+
+        public string Username { get { return m_username; } }
+        public string Password { get { return m_password; } }
+
         public LoginWindow()
         {
             InitializeComponent();
@@ -32,16 +36,6 @@ namespace DistributedGameGUI
             m_password = passwordBox.Password;
             DialogResult = true;
             this.Close();
-        }
-
-        public string GetUsername()
-        {
-            return m_username;
-        }
-
-        public string GetPassword()
-        {
-            return m_password;
         }
     }
 }
