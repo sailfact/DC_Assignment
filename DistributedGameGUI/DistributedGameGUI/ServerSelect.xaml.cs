@@ -20,16 +20,16 @@ namespace DistributedGameGUI
     /// </summary>
     public partial class ServerSelect : Window
     {
-        private ServerList m_serverList;
+        private List<Server> m_serverList;
         private Server m_server;
 
         public Server Server { get { return m_server; } }
 
-        public ServerSelect(ServerList serverList)
+        public ServerSelect(List<Server> serverList)
         {
             m_serverList = serverList;
             InitializeComponent();
-            this.DataContext = m_serverList.Servers;
+            this.DataContext = m_serverList;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace DistributedGameGUI
         /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            IvwServer.ItemsSource = m_serverList.Servers;
+            IvwServer.ItemsSource = m_serverList;
         }
 
         private void BtnOk_Click(object sender, RoutedEventArgs e)

@@ -18,8 +18,7 @@ namespace DistributedGamePortal
     class DGPortalControllerImpl : IDGPortalController
     {
         private IDGDataController m_database;
-        private ServerList m_serverList;
-        private delegate bool VerifyOperation(string username, string password, out User user);
+        private List<Server> m_serverList;
         /// <summary>
         /// Constructor
         /// Connects to the data base
@@ -40,7 +39,7 @@ namespace DistributedGamePortal
                 channelFactory = new ChannelFactory<IDGDataController>(tcpBinding, url);   // bind url to channel factory
 
                 m_database = channelFactory.CreateChannel();  // create database on remote server
-                m_serverList = new ServerList();
+                m_serverList = new List<Server>();
             }
             catch (ArgumentNullException e1)
             {
@@ -63,17 +62,8 @@ namespace DistributedGamePortal
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="server"></param>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void AddServerInfo(Server server)
-        {
-            m_serverList.AddServer(server);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
         /// <returns></returns>
-        public ServerList GetServerList()
+        public List<Server> GetServerList()
         {
             return m_serverList;
         }
@@ -111,14 +101,23 @@ namespace DistributedGamePortal
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public Server GetServerInfo()
+        public Server Subscribe()
         {
-            int id = m_serverList.ServerCount + 1;
+            int id = m_serverList.Count + 1;
             string name = "DGServer" + id;
-            string url = "net.tcp://localhost:6"+id.ToString("0000")+"/" + name;
+            string url = "net.tcp://localhost:6" + id.ToString("0000") + "/" + name;
             Server server = new Server(id, url, name);
-            m_serverList.AddServer(server);
+            m_serverList.Add(server);
             return server;
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void Unsubscribe(Server server)
+        {
+            if (m_serverList.Contains(server))
+            {
+                m_serverList.Remove(server);
+            }
         }
     }
 }

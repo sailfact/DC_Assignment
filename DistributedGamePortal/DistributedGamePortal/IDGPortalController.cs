@@ -13,14 +13,14 @@ namespace DistributedGamePortal
     {
         [OperationContract(ProtectionLevel = ProtectionLevel.EncryptAndSign)]
         bool VerifyUser(string username, string password, out User user);
+                
+        [OperationContract]
+        List<Server> GetServerList();
 
         [OperationContract]
-        Server GetServerInfo();
-        
-        [OperationContract]
-        ServerList GetServerList();
+        Server Subscribe();
 
-        [OperationContract]
-        void AddServerInfo(Server server);
+        [OperationContract(IsOneWay = true)]
+        void Unsubscribe(Server server);
     }
 }

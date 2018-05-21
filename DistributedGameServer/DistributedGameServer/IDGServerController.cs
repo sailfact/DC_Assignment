@@ -42,6 +42,9 @@ namespace DistributedGameServer
         [OperationContract(IsOneWay = true)]
         void NotifyGameEnded();
 
+        [OperationContract(IsOneWay = true)]
+        void ServerFull();
+
         [OperationContract]
         void TakeTurn(Hero hero, out int abilityIdx, out int targetIdx);
 

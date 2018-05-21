@@ -26,31 +26,4 @@ namespace DistributedGamePortal
             this.Name = name;
         }
     }
-
-    [DataContract]
-    public class ServerList
-    {
-        [DataMember]
-        public List<Server> Servers { get; set; }
-
-        [DataMember]
-        public int ServerCount { get; set; }
-
-        public ServerList()
-        {
-            Servers = new List<Server>();
-            ServerCount = -1;
-        }
-
-        public void AddServer(Server server)
-        {
-            ++ServerCount;
-            Servers.Insert(ServerCount, server);
-        }
-
-        public Server GetServer(int index)
-        {
-            return Servers[index];
-        }
-    }
 }

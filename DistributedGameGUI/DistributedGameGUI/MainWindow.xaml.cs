@@ -44,6 +44,17 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        ~MainWindow()
+        {
+            if (m_server != null)
+            {
+                m_server.Unsubscribe(m_clientID);
+            }
+        }
+
+        /// <summary>
         /// Window_Loaded
         /// </summary>
         /// <param name="sender"></param>
