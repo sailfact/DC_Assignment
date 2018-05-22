@@ -21,10 +21,10 @@ namespace DistributedGameServer
         private delegate bool GameOperation();
         private IDGPortalController m_portal;
         private IDGDataController m_database;
-        private List<User> m_users;
         private List<Hero> m_heroes;
-        private Dictionary<Guid, Hero> m_players;
-        private Dictionary<Guid, IDGServerControllerCallback> m_clients;
+        private Dictionary<User, Hero> m_players;
+        private int m_playerCount;
+        private Dictionary<User, IDGServerControllerCallback> m_clients;
         private Boss m_boss;
         private Server m_serverInfo;
         /// <summary>
@@ -32,8 +32,9 @@ namespace DistributedGameServer
         /// </summary>
         public DGServerControllerImpl()
         {
-            m_players = new Dictionary<Guid, Hero>();
-            m_clients = new Dictionary<Guid, IDGServerControllerCallback>();
+            m_players = new Dictionary<User, Hero>();
+            m_playerCount = 0;
+            m_clients = new Dictionary<User, IDGServerControllerCallback>();
             ConnectToPortal();
             ConnectToDB();
             m_boss = SelectBoss();
@@ -48,16 +49,6 @@ namespace DistributedGameServer
             }
         }
 
-        /// <summary>
-        /// AddUser 
-        /// Callback function for IDGPortalContollerImpl
-        /// adds user to user list
-        /// </summary>
-        /// <param name="newUser"></param>
-        public void AddUser(User newUser)
-        {
-            m_users.Add(newUser);
-        }
         /// <summary>
         /// 
         /// </summary>
@@ -187,32 +178,22 @@ namespace DistributedGameServer
         /// </summary>
         /// <param name="hero"></param>
         /// <param name="user"></param>
-        public void SelectHero(Guid id, Hero hero)
+        public void SelectHero(User user, Hero hero)
         {
             if (m_players.Count >= 12)
             {
-                m_players.Add(id, hero);
+                m_players.Add(user, hero);
+                ++m_playerCount;
             }
 
-            if (m_players.Count == 5)
-            {
+            //if (m_players.Count == 5)
+            //{
                 GameOperation gameDel = Game;
                 AsyncCallback callback = this.GameOnComplete;
 
                 gameDel.BeginInvoke(callback, null);
                 Console.WriteLine("Begining Game");
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="boss"></param>
-        /// <param name="players"></param>
-        public void GetGameStats(out Boss boss, out Dictionary<Guid, Hero> players)
-        {
-            boss = m_boss;
-            players = m_players;
+            //}
         }
 
         /// <summary>
@@ -239,9 +220,20 @@ namespace DistributedGameServer
             Random rnd = new Random();
             int index, value, abilityIdx, targIdx;
             char target, type;
+            foreach (var client in m_clients)
+            {
+                client.Value.NotifyGameStart();
+            }
+
+            Console.WriteLine("Game Started");
             while (m_boss.HealthPoints != 0 && AreAlive())
             {
+                foreach (var client in m_clients)
+                {
+                    client.Value.NotifyGameStats(m_boss, m_players);
+                }
                 // boss turn
+                Console.WriteLine("Boss Turn");
                 if (strategy == 'R') // attack random
                 {
                     index = rnd.Next(m_players.Count);
@@ -255,13 +247,15 @@ namespace DistributedGameServer
                 // player turns
                 foreach (var client in m_clients)
                 {
-                    if (m_players[client.Key].HealthPoints > 0)
+                    Console.WriteLine("{0} turn", client.Key.UserName);
+                    if (m_players.ContainsKey(client.Key) && m_players[client.Key].HealthPoints > 0)
                     {
                         do
                         {
                             client.Value.TakeTurn(m_players[client.Key], out abilityIdx, out targIdx);
                         }
                         while (abilityIdx > -1 && targIdx > -1 && abilityIdx < m_players[client.Key].Abilities.Count && targIdx > m_players.Count);
+
                         value = m_players[client.Key].UseAbility(abilityIdx, out type, out target);
 
                         if (type == 'H')
@@ -278,6 +272,12 @@ namespace DistributedGameServer
                     }
                 }    
             }
+
+            foreach (var client in m_clients)
+            {
+                if (!client.Value.NotifyGameEnded())
+                    return false;
+            }
             return true;
         }
 
@@ -289,13 +289,13 @@ namespace DistributedGameServer
         {
             foreach (var player in m_players)
             {
-                if (player.Value.HealthPoints != 0)
+                if (player.Value.HealthPoints == 0)
                 {
-                    return true;
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -325,17 +325,16 @@ namespace DistributedGameServer
         /// </summary>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public Guid Subscribe()
+        public bool Subscribe(User user)
         {
             IDGServerControllerCallback callback = OperationContext.Current.GetCallbackChannel<IDGServerControllerCallback>();
-            Guid clientID = Guid.NewGuid();
 
             if (callback != null)
             {
-                m_clients.Add(clientID, callback);
+                m_clients.Add(user, callback);
+                return true;
             }
-
-            return clientID;
+            return false;
         }
 
         /// <summary>
@@ -343,16 +342,17 @@ namespace DistributedGameServer
         /// </summary>
         /// <param name="id"></param>
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public void Unsubscribe(Guid id)
+        public void Unsubscribe(User user)
         {
-            if (m_clients.ContainsKey(id))
+            if (m_clients.ContainsKey(user))
             {
-                m_clients.Remove(id);
+                m_clients.Remove(user);
             }
 
-            if (m_players.ContainsKey(id))
+            if (m_players.ContainsKey(user))
             {
-                m_players.Remove(id);
+                m_players.Remove(user);
+                --m_playerCount;
             }
         }
 
@@ -362,23 +362,18 @@ namespace DistributedGameServer
         /// <param name="result"></param>
         private void GameOnComplete(IAsyncResult result)
         {
-            bool iAddResult;
+            bool iResult = false;
             GameOperation del;
             AsyncResult asyncObj = (AsyncResult)result;
             
             if (asyncObj.EndInvokeCalled == false)
             { 
                 del = (GameOperation)asyncObj.AsyncDelegate;
-                iAddResult = del.EndInvoke(asyncObj); 
+                iResult = del.EndInvoke(asyncObj); 
             }
             asyncObj.AsyncWaitHandle.Close();
 
-            foreach (var client in m_clients)
-            {
-                client.Value.NotifyGameEnded();
-            }
-
-            if (m_players.Count >= 5)
+            if (m_players.Count >= 5 && iResult)
             {
                 GameOperation game = Game;
                 AsyncCallback callback = GameOnComplete;

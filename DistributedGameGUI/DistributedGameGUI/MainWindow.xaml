@@ -12,19 +12,28 @@
             <MenuItem Header="Heroes" Height="16" Width="51" Click="MenuItem_ClickHeroes"/>
             <MenuItem Header="Login" Height="16" Width="51" Click="MenuItem_ClickLogin"/>
         </Menu>
-        
+
+        <Label Content="Username :" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Bottom"/>
+        <TextBox x:Name="TxtBoxUsername" HorizontalAlignment="Left" Margin="70,0,0,0" VerticalAlignment="Bottom" Width="70" Height="26"/>
+
         <Label Content="Heroes" HorizontalAlignment="Left" Margin="70,100,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.105,0.231" FontSize="15"/>
-        <ListView HorizontalAlignment="Left" Height="auto" Margin="70,125,0,0" VerticalAlignment="Top" Width="300">
+        <ListView x:Name="IvwHeros" HorizontalAlignment="Left" Height="auto" Margin="70,125,0,0" VerticalAlignment="Top" Width="auto">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn/>
+                    <GridViewColumn x:Name="UserID" Header="ID" Width="60" DisplayMemberBinding="{Binding UserID}"/>
+                    <GridViewColumn x:Name="UserName" Header="User" Width="60" DisplayMemberBinding="{Binding Username}"/>
+                    <GridViewColumn x:Name="HeroName" Header="Name" Width="60" DisplayMemberBinding="{Binding HeroName}"/>
+                    <GridViewColumn x:Name="HealthPoints" Header="HP" Width="60" DisplayMemberBinding="{Binding MaxHealthPoints}"/>
+                    <GridViewColumn x:Name="Defence" Header="Defence" Width="60" DisplayMemberBinding="{Binding Defence}"/>
                 </GridView>
             </ListView.View>
         </ListView>
-        <Label Content="Boss" HorizontalAlignment="Right" Margin="0,80,300,0" VerticalAlignment="Top" FontSize="20"/>
-        <Label Content="Name" HorizontalAlignment="Right" Margin="0,100,300,0" VerticalAlignment="Top" FontSize="20"/>
-        <Label Content="HP" HorizontalAlignment="Right" Margin="0,280,300,0" VerticalAlignment="Top" FontSize="20"/>
-        <Label Content="Def" HorizontalAlignment="Right" Margin="0,380,300,0" VerticalAlignment="Top" FontSize="20"/>
-
+        <Label Content="Boss" HorizontalAlignment="Right" Margin="0,80,300,0" VerticalAlignment="Top" FontSize="40"/>
+        <Label Content="Name :" HorizontalAlignment="Right" Margin="0,180,300,0" VerticalAlignment="Top" FontSize="20"/>
+        <TextBox x:Name="TxtBoxName" HorizontalAlignment="Right" Margin="0,180,245,0" VerticalAlignment="Top" Width="50" Height="40" BorderBrush="Azure" Text=""/>
+        <Label Content="HP : " HorizontalAlignment="Right" Margin="0,280,300,0" VerticalAlignment="Top" FontSize="20"/>
+        <TextBox x:Name="TxtBoxHP" HorizontalAlignment="Right" Margin="0,280,245,0" VerticalAlignment="Top" Width="50" Height="40" BorderBrush="Azure" Text=""/>
+        <Label Content="Defence :" HorizontalAlignment="Right" Margin="0,380,300,0" VerticalAlignment="Top" FontSize="20"/>
+        <TextBox x:Name="TxtBoxDef" HorizontalAlignment="Right" Margin="0,380,245,0" VerticalAlignment="Top" Width="50" Height="40" BorderBrush="Azure" Text=""/>
     </Grid>
 </Window>

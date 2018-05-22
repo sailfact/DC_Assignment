@@ -17,23 +17,22 @@ namespace test
         public static void Main(string[] args)
         {
             ConnectDB();
-            string username = "ross";
-            string password = "password";
-            User user;
-            string err = null;
+            Dictionary<int, Player> dict = new Dictionary<int, Player>();
+            dict.Add(1, new Player("ross", 100));
+            dict.Add(2, new Player("alex", 200));
+            dict.Add(3, new Player("liam", 300));
+            dict.Add(4, new Player("charlie", 400));
 
-            for (int i = 0; i < dataController.GetNumUsers(out err); i ++)
+            foreach (var item in dict)
             {
-                dataController.GetUsernamePassword(i, out string un, out string pw, out err);
-                Console.WriteLine("Username : {0}, Password : {1}", un, pw);
+                item.Value.TakeDamage(10);
             }
 
-            VerifyUser(username, password, out user);
-                
-            foreach(string name in user.FriendList.Friends)
+            foreach (var item in dict)
             {
-                Console.WriteLine(name);
+                Console.WriteLine("key = {0}, name = {1}, health = {2}", item.Key, item.Value.Name, item.Value.Health);
             }
+            
 
             Console.ReadKey();
         }
@@ -78,5 +77,51 @@ namespace test
 
             dataController = channelFactory.CreateChannel();
         }
+    }
+
+    public class Player
+    {
+        private string name;
+        private int health;
+
+        public string Name
+        {
+            get
+            {
+                return name;
+            }
+
+            set
+            {
+                this.name = value;
+            }
+        }
+            
+        public int Health
+        {
+            get
+            {
+                return health;
+            }
+
+            set
+            {
+                this.health = value;
+            }
+        }
+
+        public Player(string name, int health)
+        {
+            this.name = name;
+            this.health = health;
+        }
+
+        
+
+        public void TakeDamage(int dam)
+        {
+            health -= dam;
+        }
+    
     }
 }

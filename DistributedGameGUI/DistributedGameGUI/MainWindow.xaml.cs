@@ -30,7 +30,6 @@ namespace DistributedGameGUI
         private IDGPortalController m_portal;
         private IDGServerController m_server;
         private User m_user;
-        private Guid m_clientID;
 
         /// <summary>
         /// MainWindow
@@ -50,7 +49,7 @@ namespace DistributedGameGUI
         {
             if (m_server != null)
             {
-                m_server.Unsubscribe(m_clientID);
+                m_server.Unsubscribe(m_user);
             }
         }
 
@@ -83,7 +82,7 @@ namespace DistributedGameGUI
             }
             catch (EndpointNotFoundException)
             {
-                MessageBox.Show("Service not avialable at this time, please  try again later\n");
+                MessageBox.Show("Portal not avialable at this time, please  try again later\n");
                 this.Close();
             }
         }
@@ -96,7 +95,7 @@ namespace DistributedGameGUI
         public void Window_Closed(object sender, EventArgs e)
         {
             if (m_server != null)
-                m_server.Unsubscribe(m_clientID);
+                m_server.Unsubscribe(m_user);
             this.Close();
         }
 
@@ -139,6 +138,7 @@ namespace DistributedGameGUI
             {
                 MessageBox.Show("Login Successful.");
                 m_user = user;
+                TxtBoxUsername.Text = user.UserName;
 
                 SelectServer();
                 if (m_server != null)
@@ -201,21 +201,21 @@ namespace DistributedGameGUI
             {
                 channelFactory = new DuplexChannelFactory<IDGServerController>(new InstanceContext(this), tcpBinding, url);   // bind url to channel factory
                 m_server = channelFactory.CreateChannel();  // create portal on remote server
-                m_clientID = m_server.Subscribe();
+                m_server.Subscribe(m_user);
             }
             catch (ArgumentNullException)
             {
-                MessageBox.Show("Error Connecting to Portal, please  try again later\n");
+                MessageBox.Show("Error Connecting to Server, please  try again later\n");
                 this.Close();
             }
             catch (InvalidOperationException)
             {
-                MessageBox.Show("Error Connecting to Portal, please  try again later\n");
+                MessageBox.Show("Error Connecting to Server, please  try again later\n");
                 this.Close();
             }
             catch (EndpointNotFoundException)
             {
-                MessageBox.Show("Service not avialable at this time, please  try again later\n");
+                MessageBox.Show("Server Endpoint not avialable at this time, please  try again later\n");
                 this.Close();
             }
         }
@@ -237,7 +237,7 @@ namespace DistributedGameGUI
                     {    
                         if ((hero = heroWind.Hero) != null)
                         {
-                            m_server.SelectHero(m_clientID, hero);
+                            m_server.SelectHero(m_user, hero);
                             done = true;
                         }
                         else
@@ -263,17 +263,19 @@ namespace DistributedGameGUI
         /// <summary>
         /// NotifyPlayerDied
         /// </summary>
-        public void NotifyPlayerDied()
+        public void NotifyPlayerDied(User player)
         {
-            throw new NotImplementedException();
+            MessageBox.Show(player.UserName + " has died");
         }
 
         /// <summary>
         /// NotifyGameEnded
         /// </summary>
-        public void NotifyGameEnded()
+        public bool NotifyGameEnded()
         {
-            throw new NotImplementedException();
+            MessageBoxResult messageBoxResult = MessageBox.Show("Do you wish to continue", "The Game Has Ended",  MessageBoxButton.YesNo,MessageBoxImage.Question);
+
+            return messageBoxResult == MessageBoxResult.Yes ? true : false;
         }
 
         /// <summary>
@@ -308,7 +310,19 @@ namespace DistributedGameGUI
 
         public void NotifyGameStats(Boss boss, Dictionary<User, Hero> heros)
         {
-            throw new NotImplementedException();
+            TxtBoxName.Text = boss.BossName;
+            TxtBoxHP.Text = boss.HealthPoints.ToString();
+            TxtBoxDef.Text = boss.Defence.ToString();
+        }
+
+        public void ServerFull()
+        {
+            MessageBox.Show("Server is full", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        public void NotifyGameStart()
+        {
+            MessageBox.Show("Game has started");
         }
     }
 }

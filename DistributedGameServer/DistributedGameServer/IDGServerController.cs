@@ -15,17 +15,14 @@ namespace DistributedGameServer
     public interface IDGServerController
     {
         [OperationContract]
-        Guid Subscribe();
+        bool Subscribe(User user);
 
         [OperationContract(IsOneWay = true)]
-        void Unsubscribe(Guid id);
+        void Unsubscribe(User user);
 
         [OperationContract]
-        void SelectHero(Guid id, Hero hero);
-
-        [OperationContract]
-        void AddUser(User newUser);
-
+        void SelectHero(User user, Hero hero);
+        
         [OperationContract]
         List<Hero> GetHeroList();
     }
@@ -37,10 +34,13 @@ namespace DistributedGameServer
     public interface IDGServerControllerCallback
     {
         [OperationContract(IsOneWay = true)]
-        void NotifyPlayerDied();
+        void NotifyPlayerDied(User player);
+
+        [OperationContract]
+        bool NotifyGameEnded();
 
         [OperationContract(IsOneWay = true)]
-        void NotifyGameEnded();
+        void NotifyGameStart();
 
         [OperationContract(IsOneWay = true)]
         void ServerFull();
