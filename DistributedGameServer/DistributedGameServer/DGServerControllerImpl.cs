@@ -50,7 +50,7 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// ConnectToDB
         /// </summary>
         public void ConnectToDB()
         {
