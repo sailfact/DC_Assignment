@@ -22,8 +22,7 @@ namespace DistributedGameServer
         private IDGPortalController m_portal;
         private IDGDataController m_database;
         private List<Hero> m_heroes;
-        private Dictionary<User, Hero> m_players;
-        private int m_playerCount;
+        private Dictionary<int, Hero> m_players;
         private Dictionary<User, IDGServerControllerCallback> m_clients;
         private Boss m_boss;
         private Server m_serverInfo;
@@ -32,8 +31,7 @@ namespace DistributedGameServer
         /// </summary>
         public DGServerControllerImpl()
         {
-            m_players = new Dictionary<User, Hero>();
-            m_playerCount = 0;
+            m_players = new Dictionary<int, Hero>();
             m_clients = new Dictionary<User, IDGServerControllerCallback>();
             ConnectToPortal();
             ConnectToDB();
@@ -180,10 +178,9 @@ namespace DistributedGameServer
         /// <param name="user"></param>
         public void SelectHero(User user, Hero hero)
         {
-            if (m_players.Count <= 12)
+            if (m_players.Count < 12)
             {
-                m_players.Add(user, hero);
-                ++m_playerCount;
+                m_players.Add(user.UserID, hero);
             }
             else
             {
@@ -228,8 +225,7 @@ namespace DistributedGameServer
             Random rnd = new Random();
             int value, abilityIdx, targIdx;
             char target, type;
-            List<User> keyList = new List<User>(m_players.Keys);
-
+            
             foreach (var client in m_clients)
             {
                 client.Value.NotifyGameStart();
@@ -256,27 +252,29 @@ namespace DistributedGameServer
                 // player turns
                 foreach (var client in m_clients)
                 {
-                    Console.WriteLine("{0} turn", client.Key.UserName);
-                    if (m_players.ContainsKey(client.Key) && m_players[client.Key].HealthPoints > 0)
+                    if (m_players.ContainsKey(client.Key.UserID))
                     {
-                        do
+                        if (m_players[client.Key.UserID].HealthPoints > 0)
                         {
-                            client.Value.TakeTurn(m_players[client.Key], out abilityIdx, out targIdx);
-                        }
-                        while (abilityIdx > -1 && targIdx > -1 && abilityIdx < m_players[client.Key].Abilities.Count && targIdx > m_players.Count);
+                            do
+                            {
+                                client.Value.TakeTurn(m_players[client.Key.UserID], out abilityIdx, out targIdx);
+                            }
+                            while (abilityIdx > -1 && targIdx > -1 && abilityIdx < m_players[client.Key.UserID].Abilities.Count && targIdx > m_players.Count);
 
-                        value = m_players[client.Key].UseAbility(abilityIdx, out type, out target);
+                            value = m_players[client.Key.UserID].UseAbility(abilityIdx, out type, out target);
 
-                        if (type == 'H')
-                        {
-                            if (target == 'M')
-                                HealMulti(value);
-                            else if (target == 'S')
-                                HealHero(targIdx, value);
-                        }
-                        else if (type == 'D')
-                        {
-                            m_boss.TakeDamage(value);
+                            if (type == 'H')
+                            {
+                                if (target == 'M')
+                                    HealMulti(value);
+                                else if (target == 'S')
+                                    HealHero(targIdx, value);
+                            }
+                            else if (type == 'D')
+                            {
+                                m_boss.TakeDamage(value);
+                            }
                         }
                     }
                 }    
@@ -296,15 +294,16 @@ namespace DistributedGameServer
         /// <returns></returns>
         private bool AreAlive()
         {
+            bool alive = false;
             foreach (var player in m_players)
             {
-                if (player.Value.HealthPoints == 0)
+                if (player.Value.HealthPoints > 0)
                 {
-                    return false;
+                    alive = true;
                 }
             }
 
-            return true;
+            return alive;
         }
 
         /// <summary>
@@ -358,10 +357,9 @@ namespace DistributedGameServer
                 m_clients.Remove(user);
             }
 
-            if (m_players.ContainsKey(user))
+            if (m_players.ContainsKey(user.UserID))
             {
-                m_players.Remove(user);
-                --m_playerCount;
+                m_players.Remove(user.UserID);
             }
         }
 

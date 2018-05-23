@@ -22,5 +22,11 @@ namespace DistributedGamePortal
 
         [OperationContract(IsOneWay = true)]
         void Unsubscribe(Server server);
+
+        [OperationContract]
+        void LogOff(User user);
+
+        [OperationContract]
+        FriendList GetFriendList();
     }
 }

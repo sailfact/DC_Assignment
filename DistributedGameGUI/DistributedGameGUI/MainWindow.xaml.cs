@@ -1,19 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using DistributedGamePortal;
 using DistributedGameServer;
 
@@ -308,21 +297,28 @@ namespace DistributedGameGUI
         /// <param name="targetIdx"></param>
         public void TakeTurn(Hero hero, out int abilityIdx, out int targetIdx)
         {
-            TakeTurn turn;
             targetIdx = -1;
             abilityIdx = -1;
-            turn = new TakeTurn(hero);
+            int [] x = this.Dispatcher.Invoke((Func<int[]>)delegate 
+            {           
+                TakeTurn turn;
+                int[] a = new int[2]; 
+                turn = new TakeTurn(hero);
 
-            if (turn.ShowDialog() == true)
-            {
-                abilityIdx = turn.Ability.AbilityID;
-                targetIdx = turn.Index;
-            }
+                if (turn.ShowDialog() == true)
+                {
+                    a[0] = turn.Ability.AbilityID;
+                    a[1] = turn.Index;
+                }
+                return a;
+            });
+            targetIdx = x[0];
+            abilityIdx = x[1];
         }
 
-        public void NotifyGameStats(Boss boss, Dictionary<User, Hero> heros)
+        public void NotifyGameStats(Boss boss, Dictionary<int, Hero> heros)
         {
-            this.Dispatcher.Invoke(() =>
+            this.Dispatcher.Invoke((Action)delegate 
             {
                 TxtBoxName.Text = boss.BossName;
                 TxtBoxHP.Text = boss.HealthPoints.ToString();

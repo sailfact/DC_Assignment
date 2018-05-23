@@ -49,6 +49,6 @@ namespace DistributedGameServer
         void TakeTurn(Hero hero, out int abilityIdx, out int targetIdx);
 
         [OperationContract(IsOneWay = true)]
-        void NotifyGameStats(Boss boss, Dictionary<User, Hero> heros);
+        void NotifyGameStats(Boss boss, Dictionary<int, Hero> heros);
     }
 }

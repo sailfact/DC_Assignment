@@ -19,6 +19,7 @@ namespace DistributedGamePortal
     {
         private IDGDataController m_database;
         private List<Server> m_serverList;
+        private List<User> m_users;
         /// <summary>
         /// Constructor
         /// Connects to the data base
@@ -39,6 +40,7 @@ namespace DistributedGamePortal
                 channelFactory = new ChannelFactory<IDGDataController>(tcpBinding, url);   // bind url to channel factory
 
                 m_database = channelFactory.CreateChannel();  // create database on remote server
+                m_users = new List<User>();
                 m_serverList = new List<Server>();
             }
             catch (ArgumentNullException e1)
@@ -87,6 +89,7 @@ namespace DistributedGamePortal
                     {
                         FriendList list = new FriendList(m_database.GetFriendsByID(i, out errMsg));
                         user = new User(i, un, pw, list);
+                        m_users.Add(user);
                         return true;
                     }
                 }
