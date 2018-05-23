@@ -174,7 +174,7 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// SelectHero
         /// </summary>
         /// <param name="hero"></param>
         /// <param name="user"></param>
@@ -197,7 +197,7 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// GetServerUrl
         /// </summary>
         /// <returns></returns>
         public string GetServerUrl()
@@ -206,7 +206,7 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// GetHeroList
         /// </summary>
         /// <returns></returns>
         public List<Hero> GetHeroList()
@@ -214,6 +214,10 @@ namespace DistributedGameServer
             return m_heroes;
         }
 
+        /// <summary>
+        /// Game
+        /// </summary>
+        /// <returns></returns>
         private bool Game()
         {
             char strategy = m_boss.TargetStrategy;
@@ -226,7 +230,7 @@ namespace DistributedGameServer
             }
 
             Console.WriteLine("Game Started");
-            while (m_boss.HealthPoints != 0 && AreAlive())
+            while (m_boss.HealthPoints > 0 && AreAlive())
             {
                 foreach (var client in m_clients)
                 {
@@ -357,7 +361,7 @@ namespace DistributedGameServer
         }
 
         /// <summary>
-        /// 
+        /// GameOnComplete
         /// </summary>
         /// <param name="result"></param>
         private void GameOnComplete(IAsyncResult result)

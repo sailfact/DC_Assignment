@@ -94,9 +94,17 @@ namespace DistributedGameGUI
         /// <param name="e"></param>
         public void Window_Closed(object sender, EventArgs e)
         {
-            if (m_server != null)
-                m_server.Unsubscribe(m_user);
-            this.Close();
+            try
+            {
+                if (m_server != null)
+                    m_server.Unsubscribe(m_user);
+
+                this.Close();
+            }
+            catch (CommunicationObjectAbortedException)
+            {
+                this.Close();
+            }
         }
 
         /// <summary>
@@ -310,9 +318,12 @@ namespace DistributedGameGUI
 
         public void NotifyGameStats(Boss boss, Dictionary<User, Hero> heros)
         {
-            TxtBoxName.Text = boss.BossName;
-            TxtBoxHP.Text = boss.HealthPoints.ToString();
-            TxtBoxDef.Text = boss.Defence.ToString();
+            this.Dispatcher.Invoke(() =>
+            {
+                TxtBoxName.Text = boss.BossName;
+                TxtBoxHP.Text = boss.HealthPoints.ToString();
+                TxtBoxDef.Text = boss.Defence.ToString();
+            });
         }
 
         public void ServerFull()
