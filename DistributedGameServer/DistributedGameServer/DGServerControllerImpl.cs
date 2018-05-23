@@ -180,10 +180,14 @@ namespace DistributedGameServer
         /// <param name="user"></param>
         public void SelectHero(User user, Hero hero)
         {
-            if (m_players.Count >= 12)
+            if (m_players.Count <= 12)
             {
                 m_players.Add(user, hero);
                 ++m_playerCount;
+            }
+            else
+            {
+                m_clients[user].ServerFull();
             }
 
             //if (m_players.Count == 5)
@@ -222,8 +226,10 @@ namespace DistributedGameServer
         {
             char strategy = m_boss.TargetStrategy;
             Random rnd = new Random();
-            int index, value, abilityIdx, targIdx;
+            int value, abilityIdx, targIdx;
             char target, type;
+            List<User> keyList = new List<User>(m_players.Keys);
+
             foreach (var client in m_clients)
             {
                 client.Value.NotifyGameStart();
@@ -240,12 +246,11 @@ namespace DistributedGameServer
                 Console.WriteLine("Boss Turn");
                 if (strategy == 'R') // attack random
                 {
-                    index = rnd.Next(m_players.Count);
-                    m_players.ElementAt(index).Value.TakeDamage(m_boss.Attack());
+                    m_players[m_players.Keys.ElementAt(rnd.Next(m_players.Keys.Count()))].TakeDamage(m_boss.Attack);
                 }
                 else if (strategy == 'H')   // attack highest damage
                 {   // for now attack first hero
-                    m_players.ElementAt(0).Value.TakeDamage(m_boss.Attack());
+                    m_players[m_players.First().Key].TakeDamage(m_boss.Attack);
                 }
 
                 // player turns

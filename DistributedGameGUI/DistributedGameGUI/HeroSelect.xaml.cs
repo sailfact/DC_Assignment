@@ -37,7 +37,7 @@ namespace DistributedGameGUI
             IvwHeroes.ItemsSource = m_heroes;
         }
 
-        private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             m_hero = (Hero)e.AddedItems[0];
         }

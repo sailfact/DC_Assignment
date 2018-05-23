@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="HeroSelect" Height="450" Width="800" Loaded="Window_Loaded">
     <Grid>
-        <ListView x:Name="IvwHeroes" HorizontalAlignment="Center" Height="auto" Margin="30,30,30,30" VerticalAlignment="Top" Width="auto" ItemsSource="{Binding}"  SelectionChanged="listView_SelectionChanged">
+        <ListView x:Name="IvwHeroes" HorizontalAlignment="Center" Height="auto" Margin="30,30,30,30" VerticalAlignment="Top" Width="auto" ItemsSource="{Binding}"  SelectionChanged="ListView_SelectionChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn x:Name="HeroName" Header="Name" Width="200" DisplayMemberBinding="{Binding HeroName}"/>

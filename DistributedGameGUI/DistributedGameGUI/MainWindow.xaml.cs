@@ -47,10 +47,14 @@ namespace DistributedGameGUI
         /// </summary>
         ~MainWindow()
         {
-            if (m_server != null)
+            try
             {
-                m_server.Unsubscribe(m_user);
+                if (m_server != null)
+                {
+                    m_server.Unsubscribe(m_user);
+                }
             }
+            catch (CommunicationException){ }
         }
 
         /// <summary>
@@ -101,7 +105,7 @@ namespace DistributedGameGUI
 
                 this.Close();
             }
-            catch (CommunicationObjectAbortedException)
+            catch (CommunicationException)
             {
                 this.Close();
             }
