@@ -135,11 +135,23 @@ namespace DistributedGameServer
         /// <returns>Boss</returns>
         public Boss SelectBoss()
         {
-            Random random = new Random();
-            string err = null;
-            int index = random.Next(m_database.GetNumBosses(out err) - 1);
-            string name = m_database.GetBossNameByID(index, out err);
-            m_database.GetBossStatsByID(index, out int def, out int hp, out int damage, out char targPref, out err);
+            int def = 0, hp = 0, damage = 0, index = 0;
+            char targPref = '0';
+            string name = "";
+
+            try
+            {
+                Random random = new Random();
+                index = random.Next(m_database.GetNumBosses() - 1);
+                name = m_database.GetBossNameByID(index);
+                m_database.GetBossStatsByID(index, out def, out hp, out damage, out targPref);
+            }
+            catch (FaultException<DataServerFault> e)
+            {
+                Console.WriteLine("Error in {0}, problem type {1}", e.Detail.Operation, e.Detail.ProblemType);
+                Environment.Exit(1);
+            }
+
             return new Boss(index, name, hp, def, damage, targPref);
         }
 
@@ -151,21 +163,29 @@ namespace DistributedGameServer
         public List<Hero> GetHeroes()
         {
             List<Hero> heroes = new List<Hero>();
-            string err = null;
             List<Ability> abilities;
             int val;
             string name, desc;
             char type, targ;
 
-            for (int i = 0; i < m_database.GetNumHeroes(out err); ++i)
+            try
             {
-                abilities = new List<Ability>();
-                m_database.GetHeroStatsByID(i, out int def, out int hp, out int moveNum, out err);
-                name = m_database.GetHeroNameByID(i, out err);
-                m_database.GetMovesByIDAndIndex(i, 0, out val, out desc, out type, out targ, out err);
-                abilities.Add(new Ability(0, "Move1", desc, val, type, targ));
-                m_database.GetMovesByIDAndIndex(i, 1, out val, out desc, out type, out targ, out err);
-                heroes.Add(new Hero(i, name, hp, def, abilities));
+                for (int i = 0; i < m_database.GetNumHeroes(); ++i)
+                {
+                    abilities = new List<Ability>();
+                    m_database.GetHeroStatsByID(i, out int def, out int hp, out int moveNum);
+                    name = m_database.GetHeroNameByID(i);
+                    m_database.GetMovesByIDAndIndex(i, 0, out val, out desc, out type, out targ);
+                    abilities.Add(new Ability(0, "Move1", desc, val, type, targ));
+                    m_database.GetMovesByIDAndIndex(i, 1, out val, out desc, out type, out targ);
+                    abilities.Add(new Ability(1, "Move2", desc, val, type, targ));
+                    heroes.Add(new Hero(i, name, hp, def, abilities));
+                }
+            }
+            catch (FaultException<DataServerFault> e)
+            {
+                Console.WriteLine("Error in {0}, problem type {1}", e.Detail.Operation, e.Detail.ProblemType);
+                Environment.Exit(1);
             }
 
             return heroes;
@@ -184,7 +204,7 @@ namespace DistributedGameServer
             }
             else
             {
-                m_clients[user].ServerFull();
+                m_clients[user].NotifyClient("Server Full");
             }
 
             //if (m_players.Count == 5)
@@ -229,7 +249,7 @@ namespace DistributedGameServer
             
             foreach (var client in m_clients)
             {
-                client.Value.NotifyGameStart();
+                client.Value.NotifyClient("The Game has Started");
             }
 
             Console.WriteLine("Game Started");
@@ -255,7 +275,7 @@ namespace DistributedGameServer
 
                 foreach (var client in m_clients)
                 {
-                    client.Value.NotifyMove(msg);
+                    client.Value.NotifyClient(msg);
                 }
                 msg = "";
 
@@ -264,40 +284,63 @@ namespace DistributedGameServer
                 {
                     if (m_players.ContainsKey(client.Key.UserID) && m_players[client.Key.UserID].HealthPoints > 0)
                     {
-                        do
+                        try
                         {
-                            client.Value.TakeTurn(out ability, out targIdx);
-                        }
-                        while (targIdx > -1 && ability != null);
-                        Console.WriteLine("{0} {1}", ability.AbilityName, targIdx);
-
-                        msg += m_players[client.Key.UserID].HeroName + " used " + ability.AbilityName;
-
-                        if (ability.Type == 'H')
-                        {
-                            if (ability.Target == 'M')
+                            do
                             {
-                                HealMulti(ability.Value);
-                                msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed everyone  by " + ability.Value;
+                                client.Value.TakeTurn(out ability, out targIdx);
                             }
-                            else if (ability.Target == 'S')
+                            while (targIdx != -1 && ability == null);
+                            Console.WriteLine("{0} {1}", ability.AbilityName, targIdx);
+                            msg += m_players[client.Key.UserID].HeroName + " used " + ability.AbilityName;
+
+                            if (ability.Type == 'H')
                             {
-                                HealHero(targIdx, ability.Value);
-                                msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed " + m_players[targIdx].HeroName + " by " + ability.Value;
+                                if (ability.Target == 'M')
+                                {
+                                    HealMulti(ability.Value);
+                                    msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed everyone  by " + ability.Value;
+                                }
+                                else if (ability.Target == 'S')
+                                {
+                                    HealHero(targIdx, ability.Value);
+                                    msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed " + m_players[targIdx].HeroName + " by " + ability.Value;
+                                }
+                            }
+                            else if (ability.Type == 'D')
+                            {
+                                m_boss.TakeDamage(ability.Value);
+                                msg += "\n" + m_players[client.Key.UserID].HeroName + " dealt " + ability.Value + " damage to boss";
+                                if (m_boss.HealthPoints == 0)
+                                    msg += "\n" + m_players[client.Key.UserID].HeroName + " has slain " + m_boss.BossName;
                             }
                         }
-                        else if (ability.Type == 'D')
+                        catch (TimeoutException)
                         {
-                            m_boss.TakeDamage(ability.Value);
-                            msg += "\n" + m_players[client.Key.UserID].HeroName + " dealt " + ability.Value + " damage to boss";
-                            if (m_boss.HealthPoints == 0)
-                                msg += "\n" + m_players[client.Key.UserID].HeroName + " has slain " + m_boss.BossName;
+                            Console.WriteLine("User TimedOut");
+                            return false;
+                        }
+                        catch (CommunicationObjectFaultedException)
+                        {
+                            Console.WriteLine("Error Communicating with client");
+                            return false;
+                        }
+                        catch (CommunicationObjectAbortedException)
+                        {
+                            Console.WriteLine();
+                            return false;
+                        }
+                        catch (CommunicationException)
+                        {
+                            Console.WriteLine();
+                            return false;
                         }
                     }
                     foreach (var cli in m_clients)
                     {
-                        cli.Value.NotifyMove(msg);
+                        cli.Value.NotifyClient(msg);
                     }
+                    msg = "";
                 }    
             }
 

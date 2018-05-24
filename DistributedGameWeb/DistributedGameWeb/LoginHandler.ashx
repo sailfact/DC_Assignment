@@ -1,9 +1,9 @@
-﻿<%@ WebHandler Language="C#" Class="DGGameServer" %>
+﻿<%@ WebHandler Language="C#" Class="LoginHandler" %>
 
 using System;
 using System.Web;
 
-public class DGGameServer : IHttpHandler {
+public class LoginHandler : IHttpHandler {
     
     public void ProcessRequest (HttpContext context) {
         context.Response.ContentType = "text/plain";

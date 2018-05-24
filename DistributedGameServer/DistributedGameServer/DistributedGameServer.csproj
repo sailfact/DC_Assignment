@@ -54,6 +54,7 @@
     <Compile Include="Ability.cs" />
     <Compile Include="Boss.cs" />
     <Compile Include="DGServerControllerImpl.cs" />
+    <Compile Include="GameServerFault.cs" />
     <Compile Include="Hero.cs" />
     <Compile Include="IDGServerController.cs" />
     <Compile Include="Program.cs" />

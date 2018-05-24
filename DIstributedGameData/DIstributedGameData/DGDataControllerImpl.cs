@@ -54,24 +54,19 @@ namespace DistributedGameData
         /// <param name="id"></param>
         /// <param name="errMsg"></param>
         /// <returns></returns>
-        public string GetBossNameByID(int id, out string errMsg)
+        public string GetBossNameByID(int id)
         {
-            errMsg = null;
             try
             {
                 return m_gameDB.GetBossNameByID(id);
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossNameByID'\nDLL Not Found";
-                Console.WriteLine(errMsg);
-                return null;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossNameByID", "DllNotFoundException"));
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossNameByID'\nArgument Out Of Range";
-                Console.WriteLine(errMsg);
-                return null;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossNameByID", "ArgumentOutOfRangeException"));
             }
         }
 
@@ -86,11 +81,9 @@ namespace DistributedGameData
         /// <param name="hp"></param>
         /// <param name="damage"></param>
         /// <param name="targetPref"></param>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public bool GetBossStatsByID(int id, out int def, out int hp, out int damage, out char targetPref, out string errMsg)
+        public void GetBossStatsByID(int id, out int def, out int hp, out int damage, out char targetPref)
         {
-            errMsg = null;
             def = 0;
             hp = 0;
             damage = 0;
@@ -101,17 +94,12 @@ namespace DistributedGameData
             }
             catch(DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossStatsByID'\nDLL Not Found";
-                Console.WriteLine(errMsg);
-                return false;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossStatsByID", "DllNotFoundException"));
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossStatsByID'\nArgument Out Of Range";
-                Console.WriteLine(errMsg);
-                return false;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossStatsByID", "ArgumentOutOfRangeException"));
             }
-            return true;
         }
 
         /// <summary>
@@ -119,26 +107,20 @@ namespace DistributedGameData
         /// gets a list of friends for a given user id
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public List<string> GetFriendsByID(int id, out string errMsg)
+        public List<string> GetFriendsByID(int id)
         {
-            errMsg = null;
             try
             {
                 return m_gameDB.GetFriendsByID(id);
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetFriendsByID'\nDLL Not Found";
-                Console.WriteLine(errMsg);
-                return null;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetFriendsByID", "DllNotFoundException"));
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetBossNameByID'\nArgument Out Of Range";
-                Console.WriteLine(errMsg);
-                return null;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetFriendsByID", "ArgumentOutOfRangeException"));
             }
         }
 
@@ -147,26 +129,20 @@ namespace DistributedGameData
         /// returns the name of a Hero for the given ID
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public string GetHeroNameByID(int id, out string errMsg)
+        public string GetHeroNameByID(int id)
         {
-            errMsg = null;
             try
             {
                 return m_gameDB.GetHeroNameByID(id);
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroNameByID'";
-                Console.WriteLine(errMsg);
-                return null;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroNameByID", "DllNotFoundException"));
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroNameByID'\nArgument Out Of Range";
-                Console.WriteLine(errMsg);
-                return null;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroNameByID", "ArgumentOutOfRangeException"));
             }
         }
 
@@ -177,11 +153,9 @@ namespace DistributedGameData
         /// <param name="def"></param>
         /// <param name="hp"></param>
         /// <param name="moveNum"></param>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public bool GetHeroStatsByID(int id, out int def, out int hp, out int moveNum, out string errMsg)
+        public void GetHeroStatsByID(int id, out int def, out int hp, out int moveNum)
         {
-            errMsg = null;
             def = 0;
             hp = 0;
             moveNum = 0;
@@ -191,18 +165,12 @@ namespace DistributedGameData
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroStatsByID'\nArgument Out Of Range";
-                Console.WriteLine(errMsg);
-                return false;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroStatsByID", "ArgumentOutOfRangeException"));
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetHeroStatsByID'\nDLL Not Found";
-                Console.WriteLine(errMsg);
-                return false;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroStatsByID", "DllNotFoundException"));
             }
-
-            return true;
         }
 
         /// <summary>
@@ -214,11 +182,9 @@ namespace DistributedGameData
         /// <param name="description"></param>
         /// <param name="type"></param>
         /// <param name="target"></param>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public bool GetMovesByIDAndIndex(int id, int index, out int value, out string description, out char type, out char target, out string errMsg)
+        public void GetMovesByIDAndIndex(int id, int index, out int value, out string description, out char type, out char target)
         {
-            errMsg = null;
             value = 0;
             description = null;
             type = '0';
@@ -229,81 +195,60 @@ namespace DistributedGameData
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetMovesByIDAndIndex'\nArgument Out Of Range";
-                Console.WriteLine(errMsg);
-                return false;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetMovesByIDAndIndex", "ArgumentOutOfRangeException"));
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetMovesByIDAndIndex'\nDLL Not Found";
-                Console.WriteLine(errMsg);
-                return false;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetMovesByIDAndIndex", "DllNotFoundException"));
             }
-
-            return true;
         }
 
         /// <summary>
         /// GetNumBosses
         /// </summary>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public int GetNumBosses(out string errMsg)
+        public int GetNumBosses()
         {
-            errMsg = null;
             try
             {
                 return m_gameDB.GetNumBosses();
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumBosses'\nDLL Not Found";
-                Console.WriteLine(errMsg);
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumBosses", "DllNotFoundException"));
             }
-
-            return -1;
         }
 
         /// <summary>
         /// GetNumHeroes
         /// </summary>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public int GetNumHeroes(out string errMsg)
+        public int GetNumHeroes()
         {
-            errMsg = null;
             try
             {
                 return m_gameDB.GetNumHeroes();
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumHeroes'\nDLL Not Found";
-                Console.WriteLine(errMsg);
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumHeroes", "DllNotFoundException"));
             }
-
-            return -1;
         }
 
         /// <summary>
         /// GetNumUsers
         /// </summary>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public int GetNumUsers(out string errMsg)
+        public int GetNumUsers()
         {
-            errMsg = null;
             try
             {
                 return m_gameDB.GetNumUsers();
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetNumUsers'\nDLL Not Found";
-                Console.WriteLine(errMsg);
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumUsers", "DllNotFoundException"));
             }
-
-            return -1;
         }
 
         /// <summary>
@@ -313,11 +258,9 @@ namespace DistributedGameData
         /// <param name="id"></param>
         /// <param name="username"></param>
         /// <param name="passwd"></param>
-        /// <param name="errMsg"></param>
         /// <returns></returns>
-        public bool GetUsernamePassword(int id, out string username, out string passwd, out string errMsg)
+        public void GetUsernamePassword(int id, out string username, out string passwd)
         {
-            errMsg = null;
             username = null;
             passwd = null;
             try
@@ -326,18 +269,12 @@ namespace DistributedGameData
             }
             catch (ArgumentOutOfRangeException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetUsernamePassword'\nArgument Out of Range";
-                Console.WriteLine(errMsg);
-                return false;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetUsernamePassword", "ArgumentOutOfRangeException"));
             }
             catch (DllNotFoundException)
             {
-                errMsg = "ERROR : in DLL function 'DGDLLWrapper.GetUsernamePassword'\nDLL Not Found";
-                Console.WriteLine(errMsg);
-                return false;
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetUsernamePassword", "DllNotFoundException"));
             }
-
-            return true;
         }
     }
 }

@@ -16,33 +16,43 @@ namespace DistributedGameData
     public interface IDGDataController
     {
         [OperationContract(ProtectionLevel = ProtectionLevel.EncryptAndSign)]
-        bool GetUsernamePassword(int id, out string username, out string passwd, out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        void GetUsernamePassword(int id, out string username, out string passwd);
 
         [OperationContract]
-        List<string> GetFriendsByID(int id, out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        List<string> GetFriendsByID(int id);
 
         [OperationContract]
-        int GetNumHeroes(out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        int GetNumHeroes();
 
         [OperationContract]
-        int GetNumBosses(out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        int GetNumBosses();
 
         [OperationContract]
-        int GetNumUsers(out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        int GetNumUsers();
 
         [OperationContract]
-        string GetHeroNameByID(int id, out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        string GetHeroNameByID(int id);
 
         [OperationContract]
-        string GetBossNameByID(int id, out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        string GetBossNameByID(int id);
 
         [OperationContract]
-        bool GetHeroStatsByID(int id, out int def, out int hp, out int moveNum, out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        void GetHeroStatsByID(int id, out int def, out int hp, out int moveNum);
 
         [OperationContract]
-        bool GetBossStatsByID(int id, out int def, out int hp, out int damage, out char targetPref, out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        void GetBossStatsByID(int id, out int def, out int hp, out int damage, out char targetPref);
 
         [OperationContract]
-        bool GetMovesByIDAndIndex(int id, int index, out int value, out string description, out char type, out char target, out string errMsg);
+        [FaultContract(typeof(DataServerFault))]
+        void GetMovesByIDAndIndex(int id, int index, out int value, out string description, out char type, out char target);
     }
 }

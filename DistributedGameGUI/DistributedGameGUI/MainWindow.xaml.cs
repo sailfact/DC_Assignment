@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
+using System.Threading;
 using System.Windows;
 using DistributedGamePortal;
 using DistributedGameServer;
@@ -20,6 +21,8 @@ namespace DistributedGameGUI
         private IDGServerController m_server;
         private User m_user;
         private Hero m_hero;
+        private Ability m_ability;
+        private int m_target;
 
         /// <summary>
         /// MainWindow
@@ -30,6 +33,8 @@ namespace DistributedGameGUI
             m_user = null;
             m_portal = null;
             m_server = null;
+            m_ability = null;
+            m_target = -1;
         }
 
         /// <summary>
@@ -271,9 +276,12 @@ namespace DistributedGameGUI
         /// <summary>
         /// NotifyPlayerDied
         /// </summary>
-        public void NotifyMove(String msg)
+        public void NotifyClient(String msg)
         {
-            MessageBox.Show(msg);
+            this.Dispatcher.Invoke(() =>
+            {
+                activityBox.Items.Add(msg);
+            });
         }
 
         /// <summary>
@@ -304,26 +312,20 @@ namespace DistributedGameGUI
         /// <param name="targetIdx"></param>
         public void TakeTurn(out Ability ability, out int targetIdx)
         {
-            Tuple<Ability,int> x = this.Dispatcher.Invoke((Func<Tuple<Ability, int>>)delegate 
-            {           
-                TakeTurn turn;
-                Tuple<Ability, int> tuple = null;
-                bool done = false;
-                do
+            do
+            {
+                if (m_ability == null || m_target == -1)
                 {
-                    turn = new TakeTurn(m_hero);
-
-                    if (turn.ShowDialog() == true)
+                    this.Dispatcher.Invoke(() =>
                     {
-                        done = true;
-                        tuple = Tuple.Create(turn.Ability, turn.Index);
-                    }
-                } while (!done);
+                        activityBox.Items.Add("Please Select Ability and target");
+                    });
+                    Thread.Sleep(5000);
+                }
 
-                return tuple;
-            });
-            ability = x.Item1;
-            targetIdx = x.Item2;
+                ability = m_ability;
+                targetIdx = m_target;
+            } while (m_ability == null || m_target == -1);
         }
 
         public void NotifyGameStats(Boss boss, Dictionary<int, Hero> players)
@@ -337,14 +339,15 @@ namespace DistributedGameGUI
             });
         }
 
-        public void ServerFull()
+        private void IvwAbilities_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            MessageBox.Show("Server is full", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            m_ability = (Ability)e.AddedItems[0];
         }
 
-        public void NotifyGameStart()
+        private void IvwPlayers_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            MessageBox.Show("Game has started");
+            KeyValuePair<int, Hero> pair =  (KeyValuePair<int, Hero>)e.AddedItems[0];
+            m_target = pair.Key;
         }
     }
 }

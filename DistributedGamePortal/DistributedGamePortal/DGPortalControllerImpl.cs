@@ -79,25 +79,28 @@ namespace DistributedGamePortal
         [MethodImpl(MethodImplOptions.Synchronized)]
         public bool VerifyUser(string username, string password, out User user)
         {
-            string errMsg = null;
             user = null;
-            for (int i = 0; i < m_database.GetNumUsers(out errMsg); i ++)
+            try
             {
-                if (m_database.GetUsernamePassword(i, out string un, out string pw, out errMsg))
+                for (int i = 0; i < m_database.GetNumUsers(); i ++)
                 {
+                    m_database.GetUsernamePassword(i, out string un, out string pw);
                     if (username == un && password == pw)
                     {
                         FriendList list = new FriendList();
-                        user = new User(i, un, pw, m_database.GetFriendsByID(i, out errMsg));
+                        user = new User(i, un, pw, m_database.GetFriendsByID(i));
                         m_users.Add(user);
                         return true;
                     }
                 }
-                else
-                {
-                    Console.WriteLine(errMsg);
-                    return false;
-                }
+            }
+            catch (FaultException<DataServerFault> )
+            {
+                throw new FaultException<PortalServerFault>(new PortalServerFault("DGPortalController.VerifyUser", "FaultException"));
+            }
+            catch (CommunicationObjectFaultedException)
+            {
+                throw new FaultException<PortalServerFault>(new PortalServerFault("DGPortalController.VerifyUser", "CommunicationObjectFaultedException"));
             }
 
             return false;

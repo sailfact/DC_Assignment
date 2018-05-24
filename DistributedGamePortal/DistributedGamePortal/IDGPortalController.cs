@@ -12,6 +12,7 @@ namespace DistributedGamePortal
     public interface IDGPortalController
     {
         [OperationContract(ProtectionLevel = ProtectionLevel.EncryptAndSign)]
+        [FaultContract(typeof(PortalServerFault))]
         bool VerifyUser(string username, string password, out User user);
                 
         [OperationContract]
