@@ -7,23 +7,41 @@ using System.Threading.Tasks;
 
 namespace DistributedGamePortal
 {
+    public enum Status { Online, Offline}
+
+    [DataContract]
+    public class Friend
+    {
+        [DataMember]
+        public string Name { get; set; }
+
+        [DataMember]
+        public Status OnlineStatus { get; set; }
+
+        public Friend(string name, Status status)
+        {
+            this.Name = name;
+            this.OnlineStatus = status;
+        }
+    }
+
     [DataContract]
     public class FriendList
     {
         [DataMember]
-        public List<string> Friends { get; set; }
+        public List<Friend> Friends { get; set; }
 
-        public FriendList(List<string> friends)
+        public FriendList(List<Friend> friends)
         {
            this.Friends = friends;
         }
 
         public FriendList()
         {
-            this.Friends = new List<string>();
+            this.Friends = new List<Friend>();
         }
 
-        public void AddFriend(string newFriend)
+        public void AddFriend(Friend newFriend)
         {
             Friends.Add(newFriend);
         }

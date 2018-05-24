@@ -68,5 +68,10 @@ namespace DistributedGameServer
 
             return ability.Value;
         }
+
+        public void MaxHeal()
+        {
+            HealthPoints = MaxHealthPoints;
+        }
     }
 }

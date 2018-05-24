@@ -19,6 +19,7 @@ namespace DistributedGameGUI
         private IDGPortalController m_portal;
         private IDGServerController m_server;
         private User m_user;
+        private Hero m_hero;
 
         /// <summary>
         /// MainWindow
@@ -39,9 +40,10 @@ namespace DistributedGameGUI
             try
             {
                 if (m_server != null)
-                {
                     m_server.Unsubscribe(m_user);
-                }
+
+                if (m_portal != null)
+                    m_portal.LogOff(m_user);
             }
             catch (CommunicationException){ }
         }
@@ -91,6 +93,9 @@ namespace DistributedGameGUI
             {
                 if (m_server != null)
                     m_server.Unsubscribe(m_user);
+
+                if (m_portal != null)
+                    m_portal.LogOff(m_user);
 
                 this.Close();
             }
@@ -183,7 +188,7 @@ namespace DistributedGameGUI
         /// <param name="e"></param>
         private void MenuItem_ClickFriends(object sender, RoutedEventArgs e)
         {
-            DisplayFriendList friendWind = new DisplayFriendList(m_user.FriendList);
+            DisplayFriendList friendWind = new DisplayFriendList(m_portal.GetFriendList(m_user));
             friendWind.Show(); 
         }
 
@@ -238,6 +243,8 @@ namespace DistributedGameGUI
                     {    
                         if ((hero = heroWind.Hero) != null)
                         {
+                            m_hero = hero;
+                            IvwAbilities.ItemsSource = hero.Abilities;
                             m_server.SelectHero(m_user, hero);
                             done = true;
                         }
@@ -264,9 +271,9 @@ namespace DistributedGameGUI
         /// <summary>
         /// NotifyPlayerDied
         /// </summary>
-        public void NotifyPlayerDied(User player)
+        public void NotifyMove(String msg)
         {
-            MessageBox.Show(player.UserName + " has died");
+            MessageBox.Show(msg);
         }
 
         /// <summary>
@@ -316,13 +323,14 @@ namespace DistributedGameGUI
             abilityIdx = x[1];
         }
 
-        public void NotifyGameStats(Boss boss, Dictionary<int, Hero> heros)
+        public void NotifyGameStats(Boss boss, Dictionary<int, Hero> players)
         {
             this.Dispatcher.Invoke((Action)delegate 
             {
                 TxtBoxName.Text = boss.BossName;
                 TxtBoxHP.Text = boss.HealthPoints.ToString();
                 TxtBoxDef.Text = boss.Defence.ToString();
+                IvwPlayers.ItemsSource = players;
             });
         }
 

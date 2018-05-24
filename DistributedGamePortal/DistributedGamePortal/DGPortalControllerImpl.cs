@@ -87,8 +87,8 @@ namespace DistributedGamePortal
                 {
                     if (username == un && password == pw)
                     {
-                        FriendList list = new FriendList(m_database.GetFriendsByID(i, out errMsg));
-                        user = new User(i, un, pw, list);
+                        FriendList list = new FriendList();
+                        user = new User(i, un, pw, m_database.GetFriendsByID(i, out errMsg));
                         m_users.Add(user);
                         return true;
                     }
@@ -121,6 +121,39 @@ namespace DistributedGamePortal
             {
                 m_serverList.Remove(server);
             }
+        }
+
+        public void LogOff(User user)
+        {
+            if (m_users.Contains(user))
+            {
+                m_users.Remove(user);
+            }
+        }
+
+        public FriendList GetFriendList(User user)
+        {
+            List<string> names = user.FriendList;
+            FriendList friendList = new FriendList();
+            bool found;
+            foreach (string name in names)
+            {
+                found = false;
+                foreach (User us in m_users)
+                {
+                    if (us.UserName == name)
+                    {
+                        found = true;
+                        friendList.AddFriend(new Friend(name, Status.Online));
+                    }
+                }
+                if (!found)
+                {
+                    friendList.AddFriend(new Friend(name, Status.Offline));
+                }
+            }
+
+            return friendList;
         }
     }
 }

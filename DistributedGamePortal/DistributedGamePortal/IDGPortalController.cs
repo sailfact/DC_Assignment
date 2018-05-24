@@ -27,6 +27,6 @@ namespace DistributedGamePortal
         void LogOff(User user);
 
         [OperationContract]
-        FriendList GetFriendList();
+        FriendList GetFriendList(User user);
     }
 }

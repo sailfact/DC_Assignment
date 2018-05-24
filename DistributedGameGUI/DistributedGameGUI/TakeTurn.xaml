@@ -8,7 +8,7 @@
         Title="TakeTurn" Height="230" Width="520"
         Loaded="Window_Loaded">
     <Grid Height="199" VerticalAlignment="Top">
-        <ListView x:Name="IvwAbilities" HorizontalAlignment="Left" Height="auto" Margin="50,20,0,0" VerticalAlignment="Top" Width="auto" ItemsSource="{Binding}" SelectionChanged="IvwAbilities_SelectionChanged">
+        <ListView x:Name="IvwAbilities" HorizontalAlignment="Left" Height="100" Margin="50,20,0,0" VerticalAlignment="Top" Width="auto" ItemsSource="{Binding}" SelectionChanged="IvwAbilities_SelectionChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn x:Name="AbilityID" Header="ID" Width="50" DisplayMemberBinding="{Binding AbilityID}"/>
@@ -20,9 +20,8 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <TextBox x:Name="TxtBox" HorizontalAlignment="Left" Height="23" Margin="100,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" Width="50" RenderTransformOrigin="1.56,0.71" TextChanged="TextBox_TextChanged"/>
-        <Label Content="Target" HorizontalAlignment="Left" Margin="50,0,0,0" VerticalAlignment="Bottom" RenderTransformOrigin="0.395,0.795"/>
-        <Button Content="Ok" HorizontalAlignment="Left" Margin="156,0,0,0" VerticalAlignment="Bottom" Width="48" Click="Button_Click"/>
-
+        <TextBox x:Name="TxtBox" HorizontalAlignment="Left" Height="23" Margin="50,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" Width="50" RenderTransformOrigin="1.56,0.71" TextChanged="TextBox_TextChanged"/>
+        <Label Content="Target" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" RenderTransformOrigin="0.395,0.795"/>
+        <Button Content="Ok" HorizontalAlignment="Left" Margin="110,0,0,0" VerticalAlignment="Bottom" Width="48" Click="Button_Click"/>
     </Grid>
 </Window>

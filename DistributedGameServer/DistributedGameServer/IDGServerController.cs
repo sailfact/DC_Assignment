@@ -34,8 +34,8 @@ namespace DistributedGameServer
     public interface IDGServerControllerCallback
     {
         [OperationContract(IsOneWay = true)]
-        void NotifyPlayerDied(User player);
-
+        void NotifyMove(string msg);
+        
         [OperationContract]
         bool NotifyGameEnded();
 
@@ -49,6 +49,6 @@ namespace DistributedGameServer
         void TakeTurn(Hero hero, out int abilityIdx, out int targetIdx);
 
         [OperationContract(IsOneWay = true)]
-        void NotifyGameStats(Boss boss, Dictionary<int, Hero> heros);
+        void NotifyGameStats(Boss boss, Dictionary<int, Hero> players);
     }
 }

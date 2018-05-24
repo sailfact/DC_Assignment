@@ -20,9 +20,9 @@ namespace DistributedGamePortal
         public string Password { get; set; }
         
         [DataMember]
-        public FriendList FriendList { get; set; }
+        public List<string> FriendList { get; set; }
 
-        public User(int id, string username, string passwd,  FriendList friendList)
+        public User(int id, string username, string passwd,  List<string> friendList)
         {
             this.UserID = id;
             this.UserName = username;

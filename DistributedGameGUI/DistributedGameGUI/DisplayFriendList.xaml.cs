@@ -20,8 +20,8 @@ namespace DistributedGameGUI
     /// </summary>
     public partial class DisplayFriendList : Window
     {
-        private List<string> m_friendList;
-        public DisplayFriendList(List<string> friends)
+        private FriendList m_friendList;
+        public DisplayFriendList(FriendList friends)
         {
             m_friendList = friends;
             InitializeComponent();
@@ -30,7 +30,7 @@ namespace DistributedGameGUI
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            IvwFriendList.ItemsSource = m_friendList;
+            IvwFriendList.ItemsSource = m_friendList.Friends;
         }
     }
 }
