@@ -165,7 +165,6 @@ namespace DistributedGameServer
                 m_database.GetMovesByIDAndIndex(i, 0, out val, out desc, out type, out targ, out err);
                 abilities.Add(new Ability(0, "Move1", desc, val, type, targ));
                 m_database.GetMovesByIDAndIndex(i, 1, out val, out desc, out type, out targ, out err);
-                abilities.Add(new Ability(1, "Move2", desc, val, type, targ));
                 heroes.Add(new Hero(i, name, hp, def, abilities));
             }
 
@@ -224,8 +223,8 @@ namespace DistributedGameServer
         {
             char strategy = m_boss.TargetStrategy;
             Random rnd = new Random();
-            int dmg, index = 0, value, abilityIdx, targIdx, highestDmg = m_players.First().Key;
-            char target, type;
+            int dmg, index = 0, targIdx, highestDmg = m_players.First().Key;
+            Ability ability;
             string msg = "";
             
             foreach (var client in m_clients)
@@ -249,9 +248,11 @@ namespace DistributedGameServer
 
                 dmg = m_boss.Attack;
                 m_players[index].TakeDamage(dmg);
+
                 msg += m_boss.BossName + " Has dealt " + dmg + " damage to " + m_players[index].HeroName;
                 if (m_players[index].HealthPoints == 0)
                     msg += "\n" + m_players[index].HeroName + " Has Perished.";
+
                 foreach (var client in m_clients)
                 {
                     client.Value.NotifyMove(msg);
@@ -265,29 +266,30 @@ namespace DistributedGameServer
                     {
                         do
                         {
-                            client.Value.TakeTurn(m_players[client.Key.UserID], out abilityIdx, out targIdx);
+                            client.Value.TakeTurn(out ability, out targIdx);
                         }
-                        while (abilityIdx > -1 && targIdx > -1 && abilityIdx < m_players[client.Key.UserID].Abilities.Count && targIdx > m_players.Count);
+                        while (targIdx > -1 && ability != null);
+                        Console.WriteLine("{0} {1}", ability.AbilityName, targIdx);
 
-                        value = m_players[client.Key.UserID].UseAbility(abilityIdx, out type, out target);
-                        msg += m_players[client.Key.UserID].HeroName + " used " + m_players[client.Key.UserID].Abilities.ElementAt(abilityIdx).AbilityName;
-                        if (type == 'H')
+                        msg += m_players[client.Key.UserID].HeroName + " used " + ability.AbilityName;
+
+                        if (ability.Type == 'H')
                         {
-                            if (target == 'M')
+                            if (ability.Target == 'M')
                             {
-                                HealMulti(value);
-                                msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed everyone  by " + value;
+                                HealMulti(ability.Value);
+                                msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed everyone  by " + ability.Value;
                             }
-                            else if (target == 'S')
+                            else if (ability.Target == 'S')
                             {
-                                HealHero(targIdx, value);
-                                msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed " + m_players[targIdx].HeroName + " by " + value;
+                                HealHero(targIdx, ability.Value);
+                                msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed " + m_players[targIdx].HeroName + " by " + ability.Value;
                             }
                         }
-                        else if (type == 'D')
+                        else if (ability.Type == 'D')
                         {
-                            m_boss.TakeDamage(value);
-                            msg += "\n" + m_players[client.Key.UserID].HeroName + " dealt " + value + " damage to boss";
+                            m_boss.TakeDamage(ability.Value);
+                            msg += "\n" + m_players[client.Key.UserID].HeroName + " dealt " + ability.Value + " damage to boss";
                             if (m_boss.HealthPoints == 0)
                                 msg += "\n" + m_players[client.Key.UserID].HeroName + " has slain " + m_boss.BossName;
                         }

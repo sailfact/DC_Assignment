@@ -302,25 +302,28 @@ namespace DistributedGameGUI
         /// <param name="guid"></param>
         /// <param name="abilityIdx"></param>
         /// <param name="targetIdx"></param>
-        public void TakeTurn(Hero hero, out int abilityIdx, out int targetIdx)
+        public void TakeTurn(out Ability ability, out int targetIdx)
         {
-            targetIdx = -1;
-            abilityIdx = -1;
-            int [] x = this.Dispatcher.Invoke((Func<int[]>)delegate 
+            Tuple<Ability,int> x = this.Dispatcher.Invoke((Func<Tuple<Ability, int>>)delegate 
             {           
                 TakeTurn turn;
-                int[] a = new int[2]; 
-                turn = new TakeTurn(hero);
-
-                if (turn.ShowDialog() == true)
+                Tuple<Ability, int> tuple = null;
+                bool done = false;
+                do
                 {
-                    a[0] = turn.Ability.AbilityID;
-                    a[1] = turn.Index;
-                }
-                return a;
+                    turn = new TakeTurn(m_hero);
+
+                    if (turn.ShowDialog() == true)
+                    {
+                        done = true;
+                        tuple = Tuple.Create(turn.Ability, turn.Index);
+                    }
+                } while (!done);
+
+                return tuple;
             });
-            targetIdx = x[0];
-            abilityIdx = x[1];
+            ability = x.Item1;
+            targetIdx = x.Item2;
         }
 
         public void NotifyGameStats(Boss boss, Dictionary<int, Hero> players)
