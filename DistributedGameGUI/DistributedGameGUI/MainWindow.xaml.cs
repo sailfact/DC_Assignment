@@ -34,7 +34,7 @@ namespace DistributedGameGUI
             m_portal = null;
             m_server = null;
             m_ability = null;
-            m_target = -1;
+            m_target = 0;
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace DistributedGameGUI
 
             if (result)
             {
-                MessageBox.Show("Login Successful.");
+                activityBox.Items.Add("Login Successful.");
                 m_user = user;
                 TxtBoxUsername.Text = user.UserName;
 
@@ -236,30 +236,38 @@ namespace DistributedGameGUI
         /// </summary>
         private void SelectHero()
         {
-            if (m_server != null)
+            try
             {
-                HeroSelect heroWind = null;
-                Hero hero = null;
-                bool done = true;
-                do
+                if (m_server != null)
                 {
-                    heroWind = new HeroSelect(m_server.GetHeroList());
-                    if (heroWind.ShowDialog() == true)
-                    {    
-                        if ((hero = heroWind.Hero) != null)
+                    HeroSelect heroWind = null;
+                    Hero hero = null;
+                    bool done = true;
+                    do
+                    {
+                        heroWind = new HeroSelect(m_server.GetHeroList());
+                        if (heroWind.ShowDialog() == true)
                         {
-                            m_hero = hero;
-                            IvwAbilities.ItemsSource = hero.Abilities;
-                            m_server.SelectHero(m_user, hero);
-                            done = true;
-                        }
-                        else
-                        {
-                            done = false;
+                            if ((hero = heroWind.Hero) != null)
+                            {
+                                m_hero = hero;
+                                IvwAbilities.ItemsSource = hero.Abilities;
+                                m_server.SelectHero(m_user, hero);
+                                done = true;
+                            }
+                            else
+                            {
+                                done = false;
+                            }
                         }
                     }
+                    while (!done);
                 }
-                while (!done);
+            }
+            catch (FaultException<GameServerFault>)
+            {
+                MessageBox.Show("Error Communicating with Game Server");
+                this.Close();
             }
         }
 
@@ -320,7 +328,7 @@ namespace DistributedGameGUI
                     {
                         activityBox.Items.Add("Please Select Ability and target");
                     });
-                    Thread.Sleep(5000);
+                    Thread.Sleep(5000); // wait 5 seconds
                 }
 
                 ability = m_ability;
@@ -336,6 +344,7 @@ namespace DistributedGameGUI
                 TxtBoxHP.Text = boss.HealthPoints.ToString();
                 TxtBoxDef.Text = boss.Defence.ToString();
                 IvwPlayers.ItemsSource = players;
+                m_target = 0;
             });
         }
 
@@ -346,8 +355,8 @@ namespace DistributedGameGUI
 
         private void IvwPlayers_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            KeyValuePair<int, Hero> pair =  (KeyValuePair<int, Hero>)e.AddedItems[0];
-            m_target = pair.Key;
+            //KeyValuePair<int, Hero> pair =  (KeyValuePair<int, Hero>)e.AddedItems[0];
+            //m_target = pair.Key;
         }
     }
 }

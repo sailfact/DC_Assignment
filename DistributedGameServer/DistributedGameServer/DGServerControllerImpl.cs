@@ -35,7 +35,7 @@ namespace DistributedGameServer
             m_clients = new Dictionary<User, IDGServerControllerCallback>();
             ConnectToPortal();
             ConnectToDB();
-            m_boss = SelectBoss();
+            m_boss = null;
             m_heroes = GetHeroes();
         }
 
@@ -110,19 +110,19 @@ namespace DistributedGameServer
                 Environment.Exit(1);
 
             }
-            catch (CommunicationObjectFaultedException e3)
+            catch (InvalidOperationException e4)
             {
-                Console.WriteLine("\nError: Communicating with Portal \n" + e3.Message);
+                Console.WriteLine(e4.Message);
+                Environment.Exit(1);
+            }
+            catch (FaultException<PortalServerFault> e)
+            {
+                Console.WriteLine("Error in portal function {0} \n{1}", e.Detail.Operation, e.Detail.ProblemType);
                 Environment.Exit(1);
             }
             catch (CommunicationException e2)
             {
                 Console.WriteLine("\nError: Communicating with Portal \n" + e2.Message);
-                Environment.Exit(1);
-            }
-            catch (InvalidOperationException e4)
-            {
-                Console.WriteLine(e4.Message);
                 Environment.Exit(1);
             }
         }
@@ -196,6 +196,7 @@ namespace DistributedGameServer
         /// </summary>
         /// <param name="hero"></param>
         /// <param name="user"></param>
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void SelectHero(User user, Hero hero)
         {
             if (m_players.Count < 12)
@@ -207,14 +208,13 @@ namespace DistributedGameServer
                 m_clients[user].NotifyClient("Server Full");
             }
 
-            //if (m_players.Count == 5)
-            //{
+            if (m_players.Count == 5)
+            {
                 GameOperation gameDel = Game;
                 AsyncCallback callback = this.GameOnComplete;
 
                 gameDel.BeginInvoke(callback, null);
-                Console.WriteLine("Begining Game");
-            //}
+            }
         }
 
         /// <summary>
@@ -241,6 +241,7 @@ namespace DistributedGameServer
         /// <returns></returns>
         private bool Game()
         {
+            m_boss = SelectBoss();
             char strategy = m_boss.TargetStrategy;
             Random rnd = new Random();
             int dmg, index = 0, targIdx, highestDmg = m_players.First().Key;
@@ -251,8 +252,7 @@ namespace DistributedGameServer
             {
                 client.Value.NotifyClient("The Game has Started");
             }
-
-            Console.WriteLine("Game Started");
+            
             while (m_boss.HealthPoints > 0 && AreAlive())
             {
                 foreach (var client in m_clients)
@@ -260,7 +260,6 @@ namespace DistributedGameServer
                     client.Value.NotifyGameStats(m_boss, m_players);
                 }
                 // boss turn
-                Console.WriteLine("Boss Turn");
                 if (strategy == 'R') // attack random
                     index = m_players.Keys.ElementAt(rnd.Next(m_players.Keys.Count()));
                 else if (strategy == 'H')   // attack highest damage
@@ -291,7 +290,7 @@ namespace DistributedGameServer
                                 client.Value.TakeTurn(out ability, out targIdx);
                             }
                             while (targIdx != -1 && ability == null);
-                            Console.WriteLine("{0} {1}", ability.AbilityName, targIdx);
+
                             msg += m_players[client.Key.UserID].HeroName + " used " + ability.AbilityName;
 
                             if (ability.Type == 'H')
@@ -327,12 +326,12 @@ namespace DistributedGameServer
                         }
                         catch (CommunicationObjectAbortedException)
                         {
-                            Console.WriteLine();
+                            Console.WriteLine("Error Communicating with client");
                             return false;
                         }
                         catch (CommunicationException)
                         {
-                            Console.WriteLine();
+                            Console.WriteLine("Error Communicating with client");
                             return false;
                         }
                     }
@@ -354,6 +353,7 @@ namespace DistributedGameServer
 
         /// <summary>
         /// AreAlive
+        /// returns true if all players are alive
         /// </summary>
         /// <returns></returns>
         private bool AreAlive()
@@ -372,6 +372,7 @@ namespace DistributedGameServer
 
         /// <summary>
         /// HealMulti
+        /// heals all heroes for the given value
         /// </summary>
         /// <param name="value"></param>
         private void HealMulti(int value)
@@ -384,19 +385,20 @@ namespace DistributedGameServer
 
         /// <summary>
         /// HealHero
+        /// heals hero at given index
         /// </summary>
         /// <param name="index"></param>
         /// <param name="value"></param>
-        private void HealHero(int index, int value)
+        private void HealHero(int key, int value)
         {
-            m_players.ElementAt(index).Value.Heal(value);
+            m_players[key].Heal(value);
         }
 
         /// <summary>
         /// Subscribe
         /// </summary>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        [MethodImpl(MethodImplOptions.Synchronized)] 
         public bool Subscribe(User user)
         {
             IDGServerControllerCallback callback = OperationContext.Current.GetCallbackChannel<IDGServerControllerCallback>();
@@ -454,7 +456,16 @@ namespace DistributedGameServer
                 }
                 m_boss = SelectBoss();
                 game.BeginInvoke(callback, null);
-                Console.WriteLine("Begining Game");
+            }
+            else
+            {
+                foreach (var user in m_clients) // remove all players from game
+                {
+                    if (m_players.ContainsKey(user.Key.UserID))
+                    {
+                        m_players.Remove(user.Key.UserID);
+                    }
+                }
             }
         }
     }

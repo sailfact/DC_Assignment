@@ -51,22 +51,19 @@ namespace DistributedGameServer
         public void TakeDamage(int damage)
         {
             HealthPoints -= (damage - Defence);
-            HealthPoints = HealthPoints < 0 ? 0 : HealthPoints;
+            if (HealthPoints < 0)
+            {
+                HealthPoints = 0;
+            }
         }
 
         public void Heal(int health)
         {
             HealthPoints += health;
-            HealthPoints = HealthPoints > MaxHealthPoints ? MaxHealthPoints : HealthPoints;
-        }
-
-        public int UseAbility(int index, out char type, out char target)
-        {
-            Ability ability = Abilities[index];
-            type = ability.Type;
-            target = ability.Target;
-
-            return ability.Value;
+            if  (HealthPoints > MaxHealthPoints)
+            {
+                HealthPoints = MaxHealthPoints;
+            }
         }
 
         public void MaxHeal()

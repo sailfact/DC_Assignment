@@ -21,7 +21,7 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn x:Name="UserID" Header="UserID" Width="60" DisplayMemberBinding="{Binding Key}"/>
-                    <GridViewColumn x:Name="HeroName" Header="Name" Width="60" DisplayMemberBinding="{Binding Value.HeroName}"/>
+                    <GridViewColumn x:Name="HeroName" Header="Name" Width="auto" DisplayMemberBinding="{Binding Value.HeroName}"/>
                     <GridViewColumn x:Name="HealthPoints" Header="HP" Width="60" DisplayMemberBinding="{Binding Value.HealthPoints}"/>
                     <GridViewColumn x:Name="MaxHealthPoints" Header="Max HP" Width="60" DisplayMemberBinding="{Binding Value.MaxHealthPoints}"/>
                 </GridView>
@@ -34,7 +34,7 @@
         <TextBox x:Name="TxtBoxHP" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,290,255,0" VerticalAlignment="Top" Width="auto" Height="auto" BorderBrush="Azure" Text=""/>
         <Label Content="Defence :" HorizontalAlignment="Right" Margin="0,380,300,0" VerticalAlignment="Top" FontSize="20"/>
         <TextBox x:Name="TxtBoxDef" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,390,255,0" VerticalAlignment="Top" Width="auto" Height="auto" BorderBrush="Azure" Text=""/>
-        <ListView x:Name="IvwAbilities" HorizontalAlignment="Center" Height="100" Margin="0,0,0,50" VerticalAlignment="Bottom" Width="auto" ItemsSource="{Binding Abilities}" SelectionChanged="IvwAbilities_SelectionChanged">
+        <ListView x:Name="IvwAbilities" HorizontalAlignment="Right" Height="100" Margin="0,0,20,50" VerticalAlignment="Bottom" Width="auto" ItemsSource="{Binding Abilities}" SelectionChanged="IvwAbilities_SelectionChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn x:Name="AbilityID" Header="ID" Width="50" DisplayMemberBinding="{Binding AbilityID}"/>
