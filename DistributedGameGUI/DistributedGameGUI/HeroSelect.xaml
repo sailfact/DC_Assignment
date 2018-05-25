@@ -10,7 +10,7 @@
         <ListView x:Name="IvwHeroes" HorizontalAlignment="Center" Height="auto" Margin="30,30,30,30" VerticalAlignment="Top" Width="auto" ItemsSource="{Binding}"  SelectionChanged="ListView_SelectionChanged">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn x:Name="HeroName" Header="Name" Width="200" DisplayMemberBinding="{Binding HeroName}"/>
+                    <GridViewColumn  x:Name="HeroName" Header="Name" Width="200" DisplayMemberBinding="{Binding HeroName}"/>
                     <GridViewColumn x:Name="HealthPoints" Header="HP" Width="200" DisplayMemberBinding="{Binding MaxHealthPoints}"/>
                     <GridViewColumn x:Name="Defence" Header="Defence" Width="200" DisplayMemberBinding="{Binding Defence}"/>
                 </GridView>

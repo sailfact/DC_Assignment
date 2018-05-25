@@ -29,7 +29,6 @@ namespace DistributedGameGUI
         {
             m_serverList = serverList;
             InitializeComponent();
-            this.DataContext = m_serverList;
         }
 
         /// <summary>
@@ -58,6 +57,11 @@ namespace DistributedGameGUI
         private void IvwServer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             m_server = (Server)e.AddedItems[0];
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

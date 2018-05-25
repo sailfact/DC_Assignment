@@ -164,18 +164,18 @@ namespace DistributedGameGUI
         {
             try
             {
-                ServerSelect select = new ServerSelect(m_portal.GetServerList());
-                bool done = true;
+                ServerSelect select;
+                bool done = false;
                 do
                 {
-                    if (select.ShowDialog() == true && select.Server != null)
-                    {
-                        ConnectToServer(select.Server);
-                        done = true;
-                    }
-                    else
-                    {
-                        done = false;
+                    select = new ServerSelect(m_portal.GetServerList());
+                    if (select.ShowDialog() == true)
+                    { 
+                        if (select.Server != null)
+                        {
+                            ConnectToServer(select.Server);
+                            done = true;
+                        }
                     }
                 }
                 while (!done);
@@ -243,7 +243,7 @@ namespace DistributedGameGUI
                 {
                     HeroSelect heroWind = null;
                     Hero hero = null;
-                    bool done = true;
+                    bool done = false;
                     do
                     {
                         heroWind = new HeroSelect(m_server.GetHeroList());
@@ -255,10 +255,6 @@ namespace DistributedGameGUI
                                 IvwAbilities.ItemsSource = hero.Abilities;
                                 m_server.SelectHero(m_user, hero);
                                 done = true;
-                            }
-                            else
-                            {
-                                done = false;
                             }
                         }
                     }
@@ -372,12 +368,11 @@ namespace DistributedGameGUI
 
                 if (m_portal != null)
                     m_portal.LogOff(m_user);
-
-                this.Close();
+                Dispatcher.BeginInvoke(new ThreadStart(() => this.Close()));
             }
             catch (CommunicationException)
             {
-                this.Close();
+                Dispatcher.BeginInvoke(new ThreadStart(() => this.Close()));
             }
         }
     }
