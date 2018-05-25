@@ -11,9 +11,7 @@ namespace DistributedGameGUI
     public partial class HeroSelect : Window
     {
         private List<Hero> m_heroes;
-        private Hero m_hero;
-
-        public Hero Hero { get { return m_hero; } }
+        public Hero Hero { get; set; }
 
         public HeroSelect(List<Hero> heroes)
         {
@@ -29,7 +27,7 @@ namespace DistributedGameGUI
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            m_hero = (Hero)IvwHeroes.SelectedItem;
+            this.Hero = (Hero)IvwHeroes.SelectedItem;
         }
 
         private void BtnOk_Click(object sender, RoutedEventArgs e)

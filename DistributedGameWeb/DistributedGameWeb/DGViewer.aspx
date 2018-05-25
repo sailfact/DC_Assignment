@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head runat="server"> <title>DistributedGame Web Viewer</title></head>
     <body>
-        <form id="frmLogin" runat="server">
-            <div id="popup">
-                Username <input id="Text1" type="text" />
-                <br/>
-                Password <input id="Password1" type="password" />
-                <button id="btnLogin">Login</button>
-            </div>
+        <form id="frmMain" runat="server">
+            <asp:menu runat="server" OnMenuItemClick="Unnamed1_MenuItemClick">
+                <Items>
+                    <asp:MenuItem Text="Login"></asp:MenuItem>
+                    <asp:MenuItem Text="Friends"></asp:MenuItem>
+                    <asp:MenuItem Text="HeroSelect"></asp:MenuItem>
+                </Items>
+            </asp:menu>
         </form>
     </body>
 </html>
+        
+    

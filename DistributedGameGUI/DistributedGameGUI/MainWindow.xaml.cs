@@ -285,7 +285,7 @@ namespace DistributedGameGUI
         /// <summary>
         /// NotifyPlayerDied
         /// </summary>
-        public void NotifyClient(String msg)
+        public void NotifyClient(string msg)
         {
             this.Dispatcher.Invoke(() =>
             {
