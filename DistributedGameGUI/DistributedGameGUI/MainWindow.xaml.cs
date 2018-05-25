@@ -34,7 +34,7 @@ namespace DistributedGameGUI
             m_portal = null;
             m_server = null;
             m_ability = null;
-            m_target = 0;
+            m_target = -1;
         }
 
         /// <summary>
@@ -148,6 +148,7 @@ namespace DistributedGameGUI
             if (result)
             {
                 activityBox.Items.Add("Login Successful.");
+                activityBox.SelectedIndex = activityBox.Items.Count - 1;
                 m_user = user;
                 TxtBoxUsername.Text = user.UserName;
 
@@ -159,7 +160,8 @@ namespace DistributedGameGUI
             }
             else
             {
-                MessageBox.Show("Unable to Login.");
+                activityBox.Items.Add("Unable to Login Please try again");
+                activityBox.SelectedIndex = activityBox.Items.Count - 1;
                 Login();
             }
         }
@@ -289,6 +291,7 @@ namespace DistributedGameGUI
             this.Dispatcher.Invoke(() =>
             {
                 activityBox.Items.Add(msg);
+                activityBox.SelectedIndex = activityBox.Items.Count - 1;
             });
         }
 
@@ -322,41 +325,41 @@ namespace DistributedGameGUI
         {
             do
             {
-                if (m_ability == null || m_target == -1)
+                this.Dispatcher.Invoke(() =>
                 {
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        activityBox.Items.Add("Please Select Ability and target");
-                    });
-                    Thread.Sleep(5000); // wait 5 seconds
-                }
+                    activityBox.Items.Add("It Your turn");
+                    activityBox.Items.Add("Please Select Ability and target");
+                    activityBox.SelectedIndex = activityBox.Items.Count - 1;
+                });
+                Thread.Sleep(5000); // wait 5 seconds
 
                 ability = m_ability;
                 targetIdx = m_target;
             } while (m_ability == null || m_target == -1);
         }
 
-        public void NotifyGameStats(Boss boss, Dictionary<int, Hero> players)
+        public void NotifyGameStats(Boss boss, Dictionary<int, Hero> players, string lastAttacked)
         {
             this.Dispatcher.Invoke((Action)delegate 
             {
                 TxtBoxName.Text = boss.BossName;
                 TxtBoxHP.Text = boss.HealthPoints.ToString();
                 TxtBoxDef.Text = boss.Defence.ToString();
+                TxtBoxLastAtatcked.Text = lastAttacked;
                 IvwPlayers.ItemsSource = players;
-                m_target = 0;
             });
         }
 
         private void IvwAbilities_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            m_ability = (Ability)e.AddedItems[0];
+            if (e.AddedItems.Count > 0)
+               m_ability = (Ability)e.AddedItems[0];
         }
 
         private void IvwPlayers_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            //KeyValuePair<int, Hero> pair =  (KeyValuePair<int, Hero>)e.AddedItems[0];
-            //m_target = pair.Key;
+            KeyValuePair<int, Hero> pair =  (KeyValuePair<int, Hero>)IvwPlayers.SelectedItem;
+            m_target = pair.Key;
         }
     }
 }

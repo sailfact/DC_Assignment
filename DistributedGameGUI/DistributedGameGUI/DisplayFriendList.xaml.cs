@@ -25,7 +25,7 @@ namespace DistributedGameGUI
         {
             m_friendList = friends;
             InitializeComponent();
-            this.DataContext = m_friendList;
+            this.DataContext = m_friendList.Friends;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

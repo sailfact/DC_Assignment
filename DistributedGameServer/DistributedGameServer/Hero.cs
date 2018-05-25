@@ -50,7 +50,11 @@ namespace DistributedGameServer
 
         public void TakeDamage(int damage)
         {
-            HealthPoints -= (damage - Defence);
+            int dmg = damage - Defence;
+            if (dmg < 0)
+                dmg = 0;
+
+            HealthPoints -= (dmg);
             if (HealthPoints < 0)
             {
                 HealthPoints = 0;
@@ -60,7 +64,7 @@ namespace DistributedGameServer
         public void Heal(int health)
         {
             HealthPoints += health;
-            if  (HealthPoints > MaxHealthPoints)
+            if (HealthPoints > MaxHealthPoints)
             {
                 HealthPoints = MaxHealthPoints;
             }

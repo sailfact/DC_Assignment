@@ -208,13 +208,13 @@ namespace DistributedGameServer
                 m_clients[user].NotifyClient("Server Full");
             }
 
-            if (m_players.Count == 5)
-            {
+            //if (m_players.Count == 5)
+           // {
                 GameOperation gameDel = Game;
                 AsyncCallback callback = this.GameOnComplete;
 
                 gameDel.BeginInvoke(callback, null);
-            }
+           // }
         }
 
         /// <summary>
@@ -246,109 +246,119 @@ namespace DistributedGameServer
             Random rnd = new Random();
             int dmg, index = 0, targIdx, highestDmg = m_players.First().Key;
             Ability ability;
-            string msg = "";
-            
-            foreach (var client in m_clients)
-            {
-                client.Value.NotifyClient("The Game has Started");
-            }
-            
-            while (m_boss.HealthPoints > 0 && AreAlive())
+            List<Tuple<int, Ability, int>> abilityQueue = new List<Tuple<int, Ability, int>>();
+            string msg = "", lastAttacked = "";
+
+            try
             {
                 foreach (var client in m_clients)
                 {
-                    client.Value.NotifyGameStats(m_boss, m_players);
+                    client.Value.NotifyClient("The Game has Started");
                 }
-                // boss turn
-                if (strategy == 'R') // attack random
-                    index = m_players.Keys.ElementAt(rnd.Next(m_players.Keys.Count()));
-                else if (strategy == 'H')   // attack highest damage
-                    index = highestDmg;
-
-                dmg = m_boss.Attack;
-                m_players[index].TakeDamage(dmg);
-
-                msg += m_boss.BossName + " Has dealt " + dmg + " damage to " + m_players[index].HeroName;
-                if (m_players[index].HealthPoints == 0)
-                    msg += "\n" + m_players[index].HeroName + " Has Perished.";
-
-                foreach (var client in m_clients)
+            
+                while (m_boss.HealthPoints > 0 && AreAlive())
                 {
-                    client.Value.NotifyClient(msg);
-                }
-                msg = "";
-
-                // player turns
-                foreach (var client in m_clients)
-                {
-                    if (m_players.ContainsKey(client.Key.UserID) && m_players[client.Key.UserID].HealthPoints > 0)
+                    foreach (var client in m_clients)
                     {
-                        try
-                        {
-                            do
-                            {
-                                client.Value.TakeTurn(out ability, out targIdx);
-                            }
-                            while (targIdx != -1 && ability == null);
-
-                            msg += m_players[client.Key.UserID].HeroName + " used " + ability.AbilityName;
-
-                            if (ability.Type == 'H')
-                            {
-                                if (ability.Target == 'M')
-                                {
-                                    HealMulti(ability.Value);
-                                    msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed everyone  by " + ability.Value;
-                                }
-                                else if (ability.Target == 'S')
-                                {
-                                    HealHero(targIdx, ability.Value);
-                                    msg += "\n" + m_players[client.Key.UserID].HeroName + " Healed " + m_players[targIdx].HeroName + " by " + ability.Value;
-                                }
-                            }
-                            else if (ability.Type == 'D')
-                            {
-                                m_boss.TakeDamage(ability.Value);
-                                msg += "\n" + m_players[client.Key.UserID].HeroName + " dealt " + ability.Value + " damage to boss";
-                                if (m_boss.HealthPoints == 0)
-                                    msg += "\n" + m_players[client.Key.UserID].HeroName + " has slain " + m_boss.BossName;
-                            }
-                        }
-                        catch (TimeoutException)
-                        {
-                            Console.WriteLine("User TimedOut");
-                            return false;
-                        }
-                        catch (CommunicationObjectFaultedException)
-                        {
-                            Console.WriteLine("Error Communicating with client");
-                            return false;
-                        }
-                        catch (CommunicationObjectAbortedException)
-                        {
-                            Console.WriteLine("Error Communicating with client");
-                            return false;
-                        }
-                        catch (CommunicationException)
-                        {
-                            Console.WriteLine("Error Communicating with client");
-                            return false;
-                        }
+                        client.Value.NotifyGameStats(m_boss, m_players, lastAttacked);
                     }
-                    foreach (var cli in m_clients)
+                    // boss turn
+                    if (strategy == 'R') // attack random
+                        index = m_players.Keys.ElementAt(rnd.Next(m_players.Keys.Count()));
+                    else if (strategy == 'H')   // attack highest damage
+                        index = highestDmg;
+
+                    dmg = m_boss.Attack;
+                    m_players[index].TakeDamage(dmg);
+                    lastAttacked = m_players[index].HeroName;
+
+                    msg += m_boss.BossName + " Has dealt " + dmg + " damage to " + m_players[index].HeroName;
+                    if (m_players[index].HealthPoints == 0)
+                        msg += "\n" + m_players[index].HeroName + " Has Perished.";
+
+                    foreach (var client in m_clients)
                     {
-                        cli.Value.NotifyClient(msg);
+                        client.Value.NotifyClient(msg);
                     }
                     msg = "";
-                }    
-            }
 
-            foreach (var client in m_clients)
-            {
-                if (!client.Value.NotifyGameEnded())
-                    return false;
+                    // player turns
+                    foreach (var client in m_clients)
+                    {
+                        do
+                        {
+                            client.Value.TakeTurn(out ability, out targIdx);
+                        }
+                        while (targIdx != -1 && ability == null);
+
+                        abilityQueue.Add(Tuple.Create(client.Key.UserID, ability, targIdx));
+                    }
+
+                    foreach (var turn in abilityQueue)
+                    {
+                        if (m_players.ContainsKey(turn.Item1) && m_players[turn.Item1].HealthPoints > 0)
+                        {
+                        
+                                msg += m_players[turn.Item1].HeroName + " used " + turn.Item2.AbilityName;
+                            
+                                if (turn.Item2.Type == 'H')
+                                {
+                                    if (turn.Item2.Target == 'M')
+                                    {
+                                        HealMulti(turn.Item2.Value);
+                                        msg += "\n" + m_players[turn.Item1].HeroName + " Healed everyone  by " + turn.Item2.Value;
+                                    }
+                                    else if (turn.Item2.Target == 'S')
+                                    {
+                                        HealHero(turn.Item3, turn.Item2.Value);
+                                        msg += "\n" + m_players[turn.Item1].HeroName + " Healed " + m_players[turn.Item3].HeroName + " by " + turn.Item2.Value;
+                                    }
+                                }
+                                else if (turn.Item2.Type == 'D')
+                                {
+                                    m_boss.TakeDamage(turn.Item2.Value);
+                                    msg += "\n" + m_players[turn.Item1].HeroName + " dealt " + turn.Item2.Value + " damage to boss";
+
+                                    if (m_boss.HealthPoints == 0)
+                                        msg += "\n" + m_players[turn.Item1].HeroName + " has slain " + m_boss.BossName;
+                                }
+                        
+                        }
+                        foreach (var cli in m_clients)
+                        {
+                            cli.Value.NotifyClient(msg);
+                        }
+                        msg = "";
+                    }
+                }
+
+                foreach (var client in m_clients)
+                {
+                    if (!client.Value.NotifyGameEnded())
+                        return false;
+                }
+                return true;
             }
-            return true;
+            catch (TimeoutException)
+            {
+                Console.WriteLine("User TimedOut");
+                return false;
+            }
+            catch (CommunicationObjectFaultedException)
+            {
+                Console.WriteLine("Error Communicating with client");
+                return false;
+            }
+            catch (CommunicationObjectAbortedException)
+            {
+                Console.WriteLine("Error Communicating with client");
+                return false;
+            }
+            catch (CommunicationException)
+            {
+                Console.WriteLine("Error Communicating with client");
+                return false;
+            }
         }
 
         /// <summary>
@@ -391,7 +401,8 @@ namespace DistributedGameServer
         /// <param name="value"></param>
         private void HealHero(int key, int value)
         {
-            m_players[key].Heal(value);
+            if (m_players.ContainsKey(key))
+                m_players[key].Heal(value);
         }
 
         /// <summary>

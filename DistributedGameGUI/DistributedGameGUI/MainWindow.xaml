@@ -29,11 +29,13 @@
         </ListView>
         <Label Content="Boss" HorizontalAlignment="Right" Margin="0,80,300,0" VerticalAlignment="Top" FontSize="40"/>
         <Label Content="Name :" HorizontalAlignment="Right" Margin="0,180,300,0" VerticalAlignment="Top" FontSize="20"/>
-        <TextBox x:Name="TxtBoxName" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,190,200,0" VerticalAlignment="Top" Width="auto" Height="auto" BorderBrush="Azure" Text=""/>
+        <TextBox x:Name="TxtBoxName" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,190,100,0" VerticalAlignment="Top" Width="150" Height="auto" BorderBrush="Azure" Text=""/>
         <Label Content="HP : " HorizontalAlignment="Right" Margin="0,280,300,0" VerticalAlignment="Top" FontSize="20"/>
-        <TextBox x:Name="TxtBoxHP" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,290,255,0" VerticalAlignment="Top" Width="auto" Height="auto" BorderBrush="Azure" Text=""/>
+        <TextBox x:Name="TxtBoxHP" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,290,100,0" VerticalAlignment="Top" Width="150" Height="auto" BorderBrush="Azure" Text=""/>
         <Label Content="Defence :" HorizontalAlignment="Right" Margin="0,380,300,0" VerticalAlignment="Top" FontSize="20"/>
-        <TextBox x:Name="TxtBoxDef" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,390,255,0" VerticalAlignment="Top" Width="auto" Height="auto" BorderBrush="Azure" Text=""/>
+        <TextBox x:Name="TxtBoxDef" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,390,100,0" VerticalAlignment="Top" Width="150" Height="auto" BorderBrush="Azure" Text=""/>
+        <Label Content="Last Attacked :" HorizontalAlignment="Right" Margin="0,480,300,0" VerticalAlignment="Top" FontSize="20"/>
+        <TextBox x:Name="TxtBoxLastAtatcked" IsReadOnly="True" HorizontalAlignment="Right" Margin="0,490,100,0" VerticalAlignment="Top" Width="150" Height="auto" BorderBrush="Azure" Text=""/>
         <ListView x:Name="IvwAbilities" HorizontalAlignment="Right" Height="100" Margin="0,0,20,50" VerticalAlignment="Bottom" Width="auto" ItemsSource="{Binding Abilities}" SelectionChanged="IvwAbilities_SelectionChanged">
             <ListView.View>
                 <GridView>
@@ -46,6 +48,6 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="activityBox" HorizontalAlignment="Left" Height="150" Margin="70,0,0,50" VerticalAlignment="Bottom" Width="auto"/>
+        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="activityBox" HorizontalAlignment="Left" Height="150" Margin="70,0,0,50" VerticalAlignment="Bottom" Width="auto" Background="Gray" />
     </Grid>
 </Window>

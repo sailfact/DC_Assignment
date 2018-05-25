@@ -139,21 +139,20 @@ namespace DistributedGamePortal
             List<string> names = user.FriendList;
             FriendList friendList = new FriendList();
             bool found;
-            foreach (string name in names)
+            foreach (var name in names)
             {
                 found = false;
-                foreach (User us in m_users)
+                foreach (var usr in m_users)
                 {
-                    if (us.UserName == name)
-                    {
+                    if (usr.UserName == name)
                         found = true;
-                        friendList.AddFriend(new Friend(name, Status.Online));
-                    }
                 }
-                if (!found)
-                {
-                    friendList.AddFriend(new Friend(name, Status.Offline));
-                }
+                friendList.AddFriend(new Friend(name, found ? Status.Online : Status.Offline));
+            }
+
+            foreach (var frd in friendList.Friends)
+            {
+                Console.WriteLine("{0} {1}", frd.Name, frd.OnlineStatus);
             }
 
             return friendList;
