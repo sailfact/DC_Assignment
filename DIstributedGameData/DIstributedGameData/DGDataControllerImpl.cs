@@ -62,11 +62,11 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossNameByID", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossNameByID", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossNameByID", "ArgumentOutOfRangeException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossNameByID", "ArgumentOutOfRangeException", "Given argument " + id + " is out of range."));
             }
         }
 
@@ -94,11 +94,11 @@ namespace DistributedGameData
             }
             catch(DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossStatsByID", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossStatsByID", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossStatsByID", "ArgumentOutOfRangeException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetBossStatsByID", "ArgumentOutOfRangeException", "Given argument " + id + " is out of range."));
             }
         }
 
@@ -116,11 +116,11 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetFriendsByID", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetFriendsByID", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetFriendsByID", "ArgumentOutOfRangeException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetFriendsByID", "ArgumentOutOfRangeException", "Given argument " + id + " is out of range."));
             }
         }
 
@@ -138,11 +138,11 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroNameByID", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroNameByID", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroNameByID", "ArgumentOutOfRangeException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroNameByID", "ArgumentOutOfRangeException", "Given argument " + id + " is out of range."));
             }
         }
 
@@ -165,11 +165,11 @@ namespace DistributedGameData
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroStatsByID", "ArgumentOutOfRangeException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroStatsByID", "ArgumentOutOfRangeException", "Given argument " + id + " is out of range."));
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroStatsByID", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetHeroStatsByID", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
         }
 
@@ -195,11 +195,11 @@ namespace DistributedGameData
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetMovesByIDAndIndex", "ArgumentOutOfRangeException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetMovesByIDAndIndex", "ArgumentOutOfRangeException", "Given Arguments " + id +", "+index+ " where out of range"));
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetMovesByIDAndIndex", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetMovesByIDAndIndex", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
         }
 
@@ -215,7 +215,7 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumBosses", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumBosses", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
         }
 
@@ -231,7 +231,7 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumHeroes", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumHeroes", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
         }
 
@@ -247,7 +247,7 @@ namespace DistributedGameData
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumUsers", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetNumUsers", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
         }
 
@@ -269,11 +269,11 @@ namespace DistributedGameData
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetUsernamePassword", "ArgumentOutOfRangeException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetUsernamePassword", "ArgumentOutOfRangeException", "Given argument " + id + " is out of range."));
             }
             catch (DllNotFoundException)
             {
-                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetUsernamePassword", "DllNotFoundException"));
+                throw new FaultException<DataServerFault>(new DataServerFault("DGDLLWrapper.GetUsernamePassword", "DllNotFoundException", "Missing or broken DLL 'DistributedGameDatabase.dll'"));
             }
         }
     }

@@ -96,11 +96,11 @@ namespace DistributedGamePortal
             }
             catch (FaultException<DataServerFault> )
             {
-                throw new FaultException<PortalServerFault>(new PortalServerFault("DGPortalController.VerifyUser", "FaultException"));
+                throw new FaultException<PortalServerFault>(new PortalServerFault("DGPortalController.VerifyUser", "FaultException", "Login Server was unable to retrieve login information from the data server"));
             }
             catch (CommunicationObjectFaultedException)
             {
-                throw new FaultException<PortalServerFault>(new PortalServerFault("DGPortalController.VerifyUser", "CommunicationObjectFaultedException"));
+                throw new FaultException<PortalServerFault>(new PortalServerFault("DGPortalController.VerifyUser", "CommunicationObjectFaultedException", "An unexpected error occurred in the Portal please try later"));
             }
 
             return false;

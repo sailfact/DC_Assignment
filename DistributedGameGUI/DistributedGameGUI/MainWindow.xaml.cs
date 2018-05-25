@@ -4,6 +4,7 @@ using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using DistributedGamePortal;
 using DistributedGameServer;
 
@@ -42,15 +43,7 @@ namespace DistributedGameGUI
         /// </summary>
         ~MainWindow()
         {
-            try
-            {
-                if (m_server != null)
-                    m_server.Unsubscribe(m_user);
-
-                if (m_portal != null)
-                    m_portal.LogOff(m_user);
-            }
-            catch (CommunicationException){ }
+            CloseWindow();
         }
 
         /// <summary>
@@ -73,17 +66,17 @@ namespace DistributedGameGUI
             catch (ArgumentNullException)
             {
                 MessageBox.Show("Error Connecting to Portal, please  try again later\n");
-                this.Close();
+                CloseWindow();
             }
             catch (InvalidOperationException)
             {
                 MessageBox.Show("Error Connecting to Portal, please  try again later\n");
-                this.Close();
+                CloseWindow();
             }
             catch (EndpointNotFoundException)
             {
                 MessageBox.Show("Portal not avialable at this time, please  try again later\n");
-                this.Close();
+                CloseWindow();
             }
         }
 
@@ -94,20 +87,7 @@ namespace DistributedGameGUI
         /// <param name="e"></param>
         public void Window_Closed(object sender, EventArgs e)
         {
-            try
-            {
-                if (m_server != null)
-                    m_server.Unsubscribe(m_user);
-
-                if (m_portal != null)
-                    m_portal.LogOff(m_user);
-
-                this.Close();
-            }
-            catch (CommunicationException)
-            {
-                this.Close();
-            }
+            CloseWindow();
         }
 
         /// <summary>
@@ -115,14 +95,27 @@ namespace DistributedGameGUI
         /// </summary>
         private void Login()
         {
-            LoginWindow loginWind = null;
-            Verify verify = m_portal.VerifyUser;
-            AsyncCallback callback = this.LoginOnComplete;
-            
-            loginWind = new LoginWindow();
-            if (loginWind.ShowDialog() == true)
+            try
             {
-                verify.BeginInvoke(loginWind.Username, loginWind.Password, out User user, callback, null);
+                LoginWindow loginWind = null;
+                Verify verify = m_portal.VerifyUser;
+                AsyncCallback callback = this.LoginOnComplete;
+
+                loginWind = new LoginWindow();
+                if (loginWind.ShowDialog() == true)
+                {
+                    verify.BeginInvoke(loginWind.Username, loginWind.Password, out User user, callback, null);
+                }
+            }
+            catch (FaultException<PortalServerFault>)
+            {
+                MessageBox.Show("Error Authenticating User please try Again later");
+                CloseWindow();
+            }
+            catch (CommunicationException)
+            {
+                MessageBox.Show("Error Communicating with Portal please try again later");
+                CloseWindow();
             }
         } 
 
@@ -148,7 +141,6 @@ namespace DistributedGameGUI
             if (result)
             {
                 activityBox.Items.Add("Login Successful.");
-                activityBox.SelectedIndex = activityBox.Items.Count - 1;
                 m_user = user;
                 TxtBoxUsername.Text = user.UserName;
 
@@ -161,7 +153,6 @@ namespace DistributedGameGUI
             else
             {
                 activityBox.Items.Add("Unable to Login Please try again");
-                activityBox.SelectedIndex = activityBox.Items.Count - 1;
                 Login();
             }
         }
@@ -171,21 +162,29 @@ namespace DistributedGameGUI
         /// </summary>
         private void SelectServer()
         {
-            ServerSelect select = new ServerSelect(m_portal.GetServerList());
-            bool done = true;
-            do
+            try
             {
-                if (select.ShowDialog() == true && select.Server != null)
+                ServerSelect select = new ServerSelect(m_portal.GetServerList());
+                bool done = true;
+                do
                 {
-                    ConnectToServer(select.Server);
-                    done = true;
+                    if (select.ShowDialog() == true && select.Server != null)
+                    {
+                        ConnectToServer(select.Server);
+                        done = true;
+                    }
+                    else
+                    {
+                        done = false;
+                    }
                 }
-                else
-                {
-                    done = false;
-                }
+                while (!done);
             }
-            while (!done);
+            catch (CommunicationException)
+            {
+                MessageBox.Show("Error Communicating with portal please try again later");
+                CloseWindow();
+            }
         }
 
         /// <summary>
@@ -219,17 +218,17 @@ namespace DistributedGameGUI
             catch (ArgumentNullException)
             {
                 MessageBox.Show("Error Connecting to Server, please  try again later\n");
-                this.Close();
+                CloseWindow();
             }
             catch (InvalidOperationException)
             {
                 MessageBox.Show("Error Connecting to Server, please  try again later\n");
-                this.Close();
+                CloseWindow();
             }
             catch (EndpointNotFoundException)
             {
                 MessageBox.Show("Server Endpoint not avialable at this time, please  try again later\n");
-                this.Close();
+                CloseWindow();
             }
         }
 
@@ -269,7 +268,7 @@ namespace DistributedGameGUI
             catch (FaultException<GameServerFault>)
             {
                 MessageBox.Show("Error Communicating with Game Server");
-                this.Close();
+                CloseWindow();
             }
         }
 
@@ -291,7 +290,6 @@ namespace DistributedGameGUI
             this.Dispatcher.Invoke(() =>
             {
                 activityBox.Items.Add(msg);
-                activityBox.SelectedIndex = activityBox.Items.Count - 1;
             });
         }
 
@@ -329,7 +327,6 @@ namespace DistributedGameGUI
                 {
                     activityBox.Items.Add("It Your turn");
                     activityBox.Items.Add("Please Select Ability and target");
-                    activityBox.SelectedIndex = activityBox.Items.Count - 1;
                 });
                 Thread.Sleep(5000); // wait 5 seconds
 
@@ -350,16 +347,38 @@ namespace DistributedGameGUI
             });
         }
 
-        private void IvwAbilities_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void IvwAbilities_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
                m_ability = (Ability)e.AddedItems[0];
         }
 
-        private void IvwPlayers_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void IvwPlayers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            KeyValuePair<int, Hero> pair =  (KeyValuePair<int, Hero>)IvwPlayers.SelectedItem;
-            m_target = pair.Key;
+            KeyValuePair<int, Hero> pair;
+            if ((e.AddedItems.Count > 0))
+            {
+                pair = (KeyValuePair<int, Hero>)e.AddedItems[0];
+                m_target = pair.Key;
+            }
+        }
+
+        private void CloseWindow()
+        {
+            try
+            {
+                if (m_server != null)
+                    m_server.Unsubscribe(m_user);
+
+                if (m_portal != null)
+                    m_portal.LogOff(m_user);
+
+                this.Close();
+            }
+            catch (CommunicationException)
+            {
+                this.Close();
+            }
         }
     }
 }

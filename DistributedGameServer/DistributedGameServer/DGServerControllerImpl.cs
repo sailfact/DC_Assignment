@@ -41,10 +41,7 @@ namespace DistributedGameServer
 
         ~DGServerControllerImpl()
         {
-            if (m_portal != null)
-            {
-                m_portal.Unsubscribe(m_serverInfo);
-            }
+            CloseServer(0);
         }
 
         /// <summary>
@@ -69,18 +66,17 @@ namespace DistributedGameServer
             catch (ArgumentNullException e1)
             {
                 Console.WriteLine("\nError: Binding URL to ChannelFactory\n" + e1.Message);
-                Environment.Exit(1);
-
+                CloseServer(1);
             }
             catch (CommunicationException e2)
             {
                 Console.WriteLine("\nError: Communicating with Data Server \n" + e2.Message);
-                Environment.Exit(1);
+                CloseServer(1);
             }
             catch (InvalidOperationException e3)
             {
                 Console.WriteLine("\nError: Modifying TcpBinding Message Quota\n" + e3.Message);
-                Environment.Exit(1);
+                CloseServer(1);
             }
         }
         /// <summary>
@@ -107,8 +103,7 @@ namespace DistributedGameServer
             catch (ArgumentNullException e1)
             {
                 Console.WriteLine("\nError: Binding URL to ChannelFactory\n" + e1.Message);
-                Environment.Exit(1);
-
+                CloseServer(1);
             }
             catch (InvalidOperationException e4)
             {
@@ -118,12 +113,12 @@ namespace DistributedGameServer
             catch (FaultException<PortalServerFault> e)
             {
                 Console.WriteLine("Error in portal function {0} \n{1}", e.Detail.Operation, e.Detail.ProblemType);
-                Environment.Exit(1);
+                CloseServer(1);
             }
             catch (CommunicationException e2)
             {
                 Console.WriteLine("\nError: Communicating with Portal \n" + e2.Message);
-                Environment.Exit(1);
+                CloseServer(1);
             }
         }
 
@@ -145,11 +140,11 @@ namespace DistributedGameServer
                 index = random.Next(m_database.GetNumBosses() - 1);
                 name = m_database.GetBossNameByID(index);
                 m_database.GetBossStatsByID(index, out def, out hp, out damage, out targPref);
-            }
+            } 
             catch (FaultException<DataServerFault> e)
             {
-                Console.WriteLine("Error in {0}, problem type {1}", e.Detail.Operation, e.Detail.ProblemType);
-                Environment.Exit(1);
+                Console.WriteLine("Error in {0}, problem type {1}\n{2}", e.Detail.Operation, e.Detail.ProblemType, e.Detail.Message);
+                CloseServer(1);
             }
 
             return new Boss(index, name, hp, def, damage, targPref);
@@ -176,16 +171,16 @@ namespace DistributedGameServer
                     m_database.GetHeroStatsByID(i, out int def, out int hp, out int moveNum);
                     name = m_database.GetHeroNameByID(i);
                     m_database.GetMovesByIDAndIndex(i, 0, out val, out desc, out type, out targ);
-                    abilities.Add(new Ability(0, "Move1", desc, val, type, targ));
+                    abilities.Add(new Ability(0, desc, val, type, targ));
                     m_database.GetMovesByIDAndIndex(i, 1, out val, out desc, out type, out targ);
-                    abilities.Add(new Ability(1, "Move2", desc, val, type, targ));
+                    abilities.Add(new Ability(1, desc, val, type, targ));
                     heroes.Add(new Hero(i, name, hp, def, abilities));
                 }
             }
             catch (FaultException<DataServerFault> e)
             {
-                Console.WriteLine("Error in {0}, problem type {1}", e.Detail.Operation, e.Detail.ProblemType);
-                Environment.Exit(1);
+                Console.WriteLine("Error in {0}, problem type {1}\n{2}", e.Detail.Operation, e.Detail.ProblemType, e.Detail.Message);
+                CloseServer(1);
             }
 
             return heroes;
@@ -199,22 +194,43 @@ namespace DistributedGameServer
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void SelectHero(User user, Hero hero)
         {
-            if (m_players.Count < 12)
+            try
             {
-                m_players.Add(user.UserID, hero);
+                if (m_players.ContainsKey(user.UserID))
+                {
+                    m_players[user.UserID] = hero;
+                    foreach (var item in m_clients)
+                    {
+                        item.Value.NotifyClient(user.UserName + "has joined the fray.");
+                    }
+                }
+                else if (m_players.Count < 12)
+                {
+                    m_players.Add(user.UserID, hero);
+                    foreach (var item in m_clients)
+                    {
+                        item.Value.NotifyClient(user.UserName + "has joined the fray.");
+                    }
+                }
+                else
+                {
+                    m_clients[user].NotifyClient("Server Full");
+                }
+
+                if (m_players.Count == 5)
+                {
+                    GameOperation gameDel = Game;
+                    AsyncCallback callback = this.GameOnComplete;
+
+                    gameDel.BeginInvoke(callback, null);
+                }
             }
-            else
+            catch (CommunicationException)
             {
-                m_clients[user].NotifyClient("Server Full");
+                Console.WriteLine("Error Comunicating with client");
+                if (m_clients.ContainsKey(user))
+                    m_clients.Remove(user);
             }
-
-            //if (m_players.Count == 5)
-           // {
-                GameOperation gameDel = Game;
-                AsyncCallback callback = this.GameOnComplete;
-
-                gameDel.BeginInvoke(callback, null);
-           // }
         }
 
         /// <summary>
@@ -477,6 +493,22 @@ namespace DistributedGameServer
                         m_players.Remove(user.Key.UserID);
                     }
                 }
+            }
+        }
+
+        private void CloseServer(int errorCode)
+        {
+            try
+            {
+                if (m_portal != null)
+                {
+                    m_portal.Unsubscribe(m_serverInfo);
+                }
+            }
+            catch (CommunicationException) { } // nothing to handle
+            finally
+            {
+                Environment.Exit(errorCode);
             }
         }
     }

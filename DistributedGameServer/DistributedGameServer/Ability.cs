@@ -17,9 +17,6 @@ namespace DistributedGameServer
         public string AbilityName { get; set; }
 
         [DataMember]
-        public string Description { get; set; }
-
-        [DataMember]
         public int Value { get; set; }
 
         [DataMember]
@@ -36,12 +33,11 @@ namespace DistributedGameServer
         /// <param name="value"></param>
         /// <param name="type"></param>
         /// <param name="target"></param>
-        public Ability(int id, string name, string desc, int value, char type, char target)
+        public Ability(int id, string name, int value, char type, char target)
         {
             Random rnd = new Random();
             this.AbilityID = id;
             this.AbilityName = name;
-            this.Description = desc;
             this.Value = rnd.Next(value / 2, value + 1);
             this.Type = type;
             this.Target = target;

@@ -56,15 +56,10 @@ namespace DistributedGameServer
 
         public void TakeDamage(int damage)
         {
-            int dmg = damage - Defence;
-            if (dmg < 0)
-                dmg = 0;
-
-            HealthPoints -= (dmg);
+            if (Defence < damage)
+                HealthPoints -= (damage - Defence);
             if (HealthPoints < 0)
-            {
                 HealthPoints = 0;
-            }
         }
     }
 }
