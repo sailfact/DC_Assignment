@@ -301,20 +301,22 @@ namespace DistributedGameServer
                     // player turns
                     foreach (var client in m_clients)
                     {
-                        do
+                        if (m_players.ContainsKey(client.Key.UserID))
                         {
-                            client.Value.TakeTurn(out ability, out targIdx);
-                        }
-                        while (targIdx != -1 && ability == null);
+                            do
+                            {
+                                client.Value.TakeTurn(out ability, out targIdx);
+                            }
+                            while (targIdx != -1 && ability == null);
 
-                        abilityQueue.Add(Tuple.Create(client.Key.UserID, ability, targIdx));
+                            abilityQueue.Add(Tuple.Create(client.Key.UserID, ability, targIdx));
+                        }
                     }
 
                     foreach (var turn in abilityQueue)
                     {
                         if (m_players.ContainsKey(turn.Item1) && m_players[turn.Item1].HealthPoints > 0)
                         {
-                        
                                 msg += m_players[turn.Item1].HeroName + " used " + turn.Item2.AbilityName;
                             
                                 if (turn.Item2.Type == 'H')
