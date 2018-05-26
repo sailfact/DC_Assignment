@@ -35,8 +35,8 @@ namespace DistributedGameServer
             m_clients = new Dictionary<User, IDGServerControllerCallback>();
             ConnectToPortal();
             ConnectToDB();
-            m_boss = null;
             m_heroes = GetHeroes();
+            m_boss = SelectBoss();
         }
 
         ~DGServerControllerImpl()
@@ -257,10 +257,9 @@ namespace DistributedGameServer
         /// <returns></returns>
         private bool Game()
         {
-            m_boss = SelectBoss();
             char strategy = m_boss.TargetStrategy;
             Random rnd = new Random();
-            int dmg, index = 0, targIdx, highestDmg = m_players.First().Key;
+            int dmg, index = 0, targIdx, highestDmgTarg = m_players.First().Key, highestDmg = 0;
             Ability ability;
             List<Tuple<int, Ability, int>> abilityQueue = new List<Tuple<int, Ability, int>>();
             string msg = "", lastAttacked = "";
@@ -282,7 +281,8 @@ namespace DistributedGameServer
                     if (strategy == 'R') // attack random
                         index = m_players.Keys.ElementAt(rnd.Next(m_players.Keys.Count()));
                     else if (strategy == 'H')   // attack highest damage
-                        index = highestDmg;
+                        index = highestDmgTarg;
+                    highestDmg = 0;
 
                     dmg = m_boss.Attack;
                     m_players[index].TakeDamage(dmg);
@@ -334,6 +334,8 @@ namespace DistributedGameServer
                                 {
                                     m_boss.TakeDamage(turn.Item2.Value);
                                     msg += "\n" + m_players[turn.Item1].HeroName + " dealt " + turn.Item2.Value + " damage to boss";
+                                    if (turn.Item2.Value > highestDmg)
+                                        highestDmgTarg = turn.Item1;
 
                                     if (m_boss.HealthPoints == 0)
                                         msg += "\n" + m_players[turn.Item1].HeroName + " has slain " + m_boss.BossName;

@@ -27,7 +27,6 @@ namespace DistributedGameData
         {
             try
             {
-                Console.WriteLine("Client Connected");
                 m_gameDB = new DistributedGameDB();
                 m_gameDB.InitDB();
             }
