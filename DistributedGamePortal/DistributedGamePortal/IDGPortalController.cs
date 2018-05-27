@@ -8,6 +8,10 @@ using System.Net.Security;
 
 namespace DistributedGamePortal
 {
+    /// <summary>
+    /// IDGPortalController
+    /// defines the server interface for the portal
+    /// </summary>
     [ServiceContract]
     public interface IDGPortalController
     {

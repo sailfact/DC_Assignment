@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace DistributedGameServer
 {
+    /// <summary>
+    /// Hero
+    /// strores all to information for heros
+    /// </summary>
     [DataContract]
     public class Hero
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        [DataMember]
+       [DataMember]
         public int HeroID { get; set; }
 
         [DataMember]
@@ -31,7 +32,7 @@ namespace DistributedGameServer
         [DataMember]
         public List<Ability> Abilities { get; set; }
         /// <summary>
-        /// 
+        /// Constructor
         /// </summary>
         /// <param name="id"></param>
         /// <param name="name"></param>
@@ -47,7 +48,13 @@ namespace DistributedGameServer
             this.Defence = def;
             this.Abilities = abilities;
         }
-
+        
+        /// <summary>
+        /// TakeDamage
+        /// damages hero for given value 
+        /// if it's less that 0 set health to 0
+        /// </summary>
+        /// <param name="damage"></param>
         public void TakeDamage(int damage)
         {
             if (Defence < damage)
@@ -57,6 +64,12 @@ namespace DistributedGameServer
                 HealthPoints = 0;
         }
 
+        /// <summary>
+        /// Heal
+        /// heals hero for the given value
+        /// if its larger than the max set it to the max
+        /// </summary>
+        /// <param name="health"></param>
         public void Heal(int health)
         {
             HealthPoints += health;
@@ -66,6 +79,10 @@ namespace DistributedGameServer
             }
         }
 
+        /// <summary>
+        /// MaxHeal
+        /// heals hero to max health
+        /// </summary>
         public void MaxHeal()
         {
             HealthPoints = MaxHealthPoints;

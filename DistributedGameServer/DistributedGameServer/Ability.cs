@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace DistributedGameServer
 {
+    /// <summary>
+    /// Ability
+    /// stroes information for hero abilities
+    /// </summary>
     [DataContract]
     public class Ability
     {
@@ -25,7 +29,7 @@ namespace DistributedGameServer
         [DataMember]
         public char Target { get; set; }
         /// <summary>
-        /// 
+        /// Constructor
         /// </summary>
         /// <param name="id"></param>
         /// <param name="name"></param>

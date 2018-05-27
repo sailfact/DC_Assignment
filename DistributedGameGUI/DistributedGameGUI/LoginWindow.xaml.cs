@@ -27,6 +27,13 @@ namespace DistributedGameGUI
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Login_button_Click
+        /// sets username and password
+        /// when login button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Login_button_Click(object sender, RoutedEventArgs e)
         {
             this.Username = usernameBox.Text;

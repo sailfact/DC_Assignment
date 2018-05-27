@@ -39,7 +39,7 @@ namespace DistributedGameGUI
         }
 
         /// <summary>
-        /// 
+        /// Destructor for MainWindow
         /// </summary>
         ~MainWindow()
         {
@@ -48,6 +48,8 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// Window_Loaded
+        /// event handler for loading the window 
+        /// connects to portal then asks user to login
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -82,6 +84,7 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// Window_Closed
+        /// event handler for closing the window
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -92,6 +95,8 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// Login
+        /// opens window to get login information
+        /// then calls VerifyUser asyncronously from portal
         /// </summary>
         private void Login()
         {
@@ -107,9 +112,9 @@ namespace DistributedGameGUI
                     verify.BeginInvoke(loginWind.Username, loginWind.Password, out User user, callback, null);
                 }
             }
-            catch (FaultException<PortalServerFault>)
+            catch (FaultException<PortalServerFault> e)
             {
-                MessageBox.Show("Error Authenticating User please try Again later");
+                MessageBox.Show("Error Authenticating User please try Again later\n\n"+e.Detail.Message);
                 CloseWindow();
             }
             catch (CommunicationException)
@@ -122,6 +127,8 @@ namespace DistributedGameGUI
         /// <summary>
         /// LoginOnComplete
         /// Callback function for Login
+        /// assigns the current user
+        /// then calls server select
         /// </summary>
         /// <param name="res"></param>
         private void LoginOnComplete(IAsyncResult res)
@@ -159,6 +166,8 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// SelectServer
+        /// opens the window for server selection 
+        /// the calls ConnectToServer
         /// </summary>
         private void SelectServer()
         {
@@ -180,6 +189,11 @@ namespace DistributedGameGUI
                 }
                 while (!done);
             }
+            catch (FaultException<PortalServerFault> e)
+            {
+                MessageBox.Show("Error Communicating with portal please try again later\n\n" + e.Detail.Message);
+                CloseWindow();
+            }
             catch (CommunicationException)
             {
                 MessageBox.Show("Error Communicating with portal please try again later");
@@ -189,6 +203,8 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// MenuItem_ClickFriends
+        /// event handler for clicking on friends menuitem
+        /// opens friends list in a window
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -200,6 +216,7 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// ConnectToServer
+        /// connects to the server for the given object
         /// </summary>
         /// <param name="newServer"></param>
         private void ConnectToServer(Server newServer)
@@ -214,6 +231,11 @@ namespace DistributedGameGUI
                 channelFactory = new DuplexChannelFactory<IDGServerController>(new InstanceContext(this), tcpBinding, url);   // bind url to channel factory
                 m_server = channelFactory.CreateChannel();  // create portal on remote server
                 m_server.Subscribe(m_user);
+            }
+            catch (FaultException<GameServerFault> e)
+            {
+                MessageBox.Show("Error Connecting to Server, please  try again later\n\n" + e.Detail.Message);
+                CloseWindow();
             }
             catch (ArgumentNullException)
             {
@@ -234,6 +256,7 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// SelectHero
+        /// Opens window for hero selection
         /// </summary>
         private void SelectHero()
         {
@@ -270,6 +293,7 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// MenuItem_ClickHeroes
+        /// event handling for clicking on heroes menu item
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -280,6 +304,8 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// NotifyPlayerDied
+        /// remote callback from server
+        /// updates ui with the message
         /// </summary>
         public void NotifyClient(string msg)
         {
@@ -291,6 +317,9 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// NotifyGameEnded
+        /// remote callback from server
+        /// notifies players if they wish to continue
+        /// returns their response
         /// </summary>
         public bool NotifyGameEnded()
         {
@@ -301,16 +330,29 @@ namespace DistributedGameGUI
 
         /// <summary>
         /// MenuItem_ClickLogin
+        /// event handler for login menu button
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void MenuItem_ClickLogin(object sender, RoutedEventArgs e)
         {
-            Login();
+            try
+            {
+                m_portal.LogOff(m_user); // logs off if already logged in
+                Login();
+            }
+            catch (CommunicationException)
+            {
+                MessageBox.Show("Error Communicating with login server");
+                CloseWindow();
+            }
         }
 
         /// <summary>
         /// TakeTurn
+        /// remote callback from server
+        /// sends the ability and target index 
+        /// back to the server
         /// </summary>
         /// <param name="guid"></param>
         /// <param name="abilityIdx"></param>
@@ -331,6 +373,14 @@ namespace DistributedGameGUI
             } while (m_ability == null || m_target == -1);
         }
 
+        /// <summary>
+        /// NotifyGameStats
+        /// remote callback from server
+        /// updates UI elements
+        /// </summary>
+        /// <param name="boss"></param>
+        /// <param name="players"></param>
+        /// <param name="lastAttacked"></param>
         public void NotifyGameStats(Boss boss, Dictionary<int, Hero> players, string lastAttacked)
         {
             this.Dispatcher.Invoke((Action)delegate 
@@ -343,12 +393,24 @@ namespace DistributedGameGUI
             });
         }
 
+        /// <summary>
+        /// IvwAbilities_SelectionChanged
+        /// event for handling the selection of what ability to use
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void IvwAbilities_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
                m_ability = (Ability)e.AddedItems[0];
         }
 
+        /// <summary>
+        /// IvwPlayers_SelectionChanged
+        /// event for handling the selection of target
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void IvwPlayers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             KeyValuePair<int, Hero> pair;
@@ -359,6 +421,11 @@ namespace DistributedGameGUI
             }
         }
 
+        /// <summary>
+        /// CloseWindow
+        /// called before closing the window
+        /// cleans up by unsubing from portal and server
+        /// </summary>
         private void CloseWindow()
         {
             try

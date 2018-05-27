@@ -42,26 +42,40 @@ namespace DistributedGameGUI
             IvwServer.ItemsSource = m_serverList;
         }
 
+        /// <summary>
+        /// BtnOk_Click
+        /// sets dialog result to true then closes window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnOk_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;           
             this.Close();
         }
 
+        /// <summary>
+        /// BtnClose_Click
+        /// sets dialog result to false 
+        /// then closes window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;           
             this.Close();
         }
 
+        /// <summary>
+        /// IvwServer_SelectionChanged
+        /// event handler for when server is selected
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void IvwServer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             m_server = (Server)e.AddedItems[0];
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            this.Close();
         }
     }
 }

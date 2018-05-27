@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DistributedGameGUI"
         mc:Ignorable="d"
-        Title="ServerSelect" Height="454.8" Width="629.6" Loaded="Window_Loaded" Closed="Window_Closed">
+        Title="ServerSelect" Height="454.8" Width="629.6" Loaded="Window_Loaded">
     <Grid>
         <ListView x:Name="IvwServer" HorizontalAlignment="Center" Height="auto" Margin="30,43,30,70" VerticalAlignment="Top" Width="Auto" ItemsSource="{Binding Server}" SelectionChanged="IvwServer_SelectionChanged">
             <ListView.View>

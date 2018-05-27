@@ -9,7 +9,7 @@ using DistributedGamePortal;
 namespace DistributedGameServer
 {
     /// <summary>
-    /// 
+    /// Server interaface
     /// </summary>
     [ServiceContract(CallbackContract = typeof(IDGServerControllerCallback))]
     public interface IDGServerController
@@ -31,7 +31,7 @@ namespace DistributedGameServer
     }
 
     /// <summary>
-    /// 
+    /// Callback contract for the clients
     /// </summary>
     [ServiceContract]
     public interface IDGServerControllerCallback

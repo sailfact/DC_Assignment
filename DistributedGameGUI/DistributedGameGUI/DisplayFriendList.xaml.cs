@@ -25,9 +25,14 @@ namespace DistributedGameGUI
         {
             m_friendList = friends;
             InitializeComponent();
-            this.DataContext = m_friendList.Friends;
         }
 
+        /// <summary>
+        /// Window_Loaded
+        /// binds friends list to item source
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             IvwFriendList.ItemsSource = m_friendList.Friends;

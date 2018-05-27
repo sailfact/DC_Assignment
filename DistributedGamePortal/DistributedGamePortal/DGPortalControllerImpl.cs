@@ -62,20 +62,21 @@ namespace DistributedGamePortal
         }
 
         /// <summary>
-        /// 
+        /// GetServeList
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns the list of available servers</returns>
         public List<Server> GetServerList()
         {
             return m_serverList;
         }
 
         /// <summary>
-        /// 
+        /// Verify User
+        /// checks with the datatier if the user info is valid and returns a user object
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
-        /// <returns></returns>
+        /// <returns>returns boolean and user object</returns>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public bool VerifyUser(string username, string password, out User user)
         {
@@ -106,6 +107,12 @@ namespace DistributedGamePortal
             return false;
         }
 
+        /// <summary>
+        /// Subscribe 
+        /// used by servers to get their hosting information 
+        /// and add the server to the server list
+        /// </summary>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public Server Subscribe()
         {
@@ -117,6 +124,11 @@ namespace DistributedGamePortal
             return server;
         }
 
+        /// <summary>
+        /// Unsubscribed
+        /// used by server to remove server info from the list of servers
+        /// </summary>
+        /// <param name="server"></param>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Unsubscribe(Server server)
         {
@@ -126,6 +138,11 @@ namespace DistributedGamePortal
             }
         }
 
+        /// <summary>
+        /// LogOff
+        /// used by user to remove the user from the list of users when the disconnect 
+        /// </summary>
+        /// <param name="user"></param>
         public void LogOff(User user)
         {
             if (m_users.Contains(user))
@@ -134,6 +151,13 @@ namespace DistributedGamePortal
             }
         }
 
+        /// <summary>
+        /// GetFriendList
+        /// takes a given user 
+        /// and allocates a friendlist
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns>returns a friendlist</returns>
         public FriendList GetFriendList(User user)
         {
             List<string> names = user.FriendList;
@@ -144,15 +168,10 @@ namespace DistributedGamePortal
                 found = false;
                 foreach (var usr in m_users)
                 {
-                    if (usr.UserName == name)
+                    if (usr.UserName == name)   // if the user is online
                         found = true;
                 }
-                friendList.AddFriend(new Friend(name, found ? Status.Online : Status.Offline));
-            }
-
-            foreach (var frd in friendList.Friends)
-            {
-                Console.WriteLine("{0} {1}", frd.Name, frd.OnlineStatus);
+                friendList.AddFriend(new Friend(name, found ? Status.Online : Status.Offline)); 
             }
 
             return friendList;

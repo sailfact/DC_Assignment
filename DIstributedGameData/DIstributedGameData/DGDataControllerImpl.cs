@@ -11,6 +11,7 @@ namespace DistributedGameData
 {
     /// <summary>
     /// DGDataController
+    /// implementation of data server interface
     /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, 
                      ConcurrencyMode = ConcurrencyMode.Multiple,
@@ -103,10 +104,9 @@ namespace DistributedGameData
 
         /// <summary>
         /// GetGriendsByID
-        /// gets a list of friends for a given user id
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns> returns a list of friends for a given user id</returns>
         public List<string> GetFriendsByID(int id)
         {
             try
@@ -125,10 +125,9 @@ namespace DistributedGameData
 
         /// <summary>
         /// GetHeroNameByID
-        /// returns the name of a Hero for the given ID
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>returns the name of a Hero for the given ID</returns>
         public string GetHeroNameByID(int id)
         {
             try
@@ -152,7 +151,7 @@ namespace DistributedGameData
         /// <param name="def"></param>
         /// <param name="hp"></param>
         /// <param name="moveNum"></param>
-        /// <returns></returns>
+        /// <returns>returns the the hero stats for the given id</returns>
         public void GetHeroStatsByID(int id, out int def, out int hp, out int moveNum)
         {
             def = 0;
@@ -181,7 +180,7 @@ namespace DistributedGameData
         /// <param name="description"></param>
         /// <param name="type"></param>
         /// <param name="target"></param>
-        /// <returns></returns>
+        /// <returns>returns moves for given hero id and move index</returns>
         public void GetMovesByIDAndIndex(int id, int index, out int value, out string description, out char type, out char target)
         {
             value = 0;
@@ -205,7 +204,7 @@ namespace DistributedGameData
         /// <summary>
         /// GetNumBosses
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns the number of bosses in the database</returns>
         public int GetNumBosses()
         {
             try
@@ -221,7 +220,7 @@ namespace DistributedGameData
         /// <summary>
         /// GetNumHeroes
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns the number of hero in the database</returns>
         public int GetNumHeroes()
         {
             try
@@ -237,7 +236,7 @@ namespace DistributedGameData
         /// <summary>
         /// GetNumUsers
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns the number of users in the database</returns>
         public int GetNumUsers()
         {
             try
@@ -252,12 +251,11 @@ namespace DistributedGameData
 
         /// <summary>
         /// GetUsernamePassword
-        /// returns the given username and id for the given id
         /// </summary>
         /// <param name="id"></param>
         /// <param name="username"></param>
         /// <param name="passwd"></param>
-        /// <returns></returns>
+        /// <returns>returns the given username and id for the given id</returns>
         public void GetUsernamePassword(int id, out string username, out string passwd)
         {
             username = null;

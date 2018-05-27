@@ -8,7 +8,11 @@ using DistributedGamePortal;
 using DistributedGameData;
 using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Messaging;
-
+/// <summary>
+/// DGServerControllerImpl
+/// implementation of server interface
+/// Author : Ross Curley
+/// </summary>
 namespace DistributedGameServer
 {
     [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple,
@@ -19,6 +23,7 @@ namespace DistributedGameServer
     class DGServerControllerImpl : IDGServerController
     {
         private delegate bool GameOperation();
+        private delegate List<Hero> GetHeroesOp();
         private IDGPortalController m_portal;
         private IDGDataController m_database;
         private List<Hero> m_heroes;
@@ -35,10 +40,36 @@ namespace DistributedGameServer
             m_clients = new Dictionary<User, IDGServerControllerCallback>();
             ConnectToPortal();
             ConnectToDB();
-            m_heroes = GetHeroes();
+            // get heroes async
+            GetHeroesOp del = GetHeroes;
+            AsyncCallback callback = this.OnGetHeroesComplete;
+            del.BeginInvoke(callback, null);
             m_boss = SelectBoss();
         }
 
+        /// <summary>
+        /// OnGetHeroesComplete
+        /// Completion call back for Getting heroes from data base
+        /// </summary>
+        /// <param name="res"></param>
+        private void OnGetHeroesComplete(IAsyncResult res)
+        {
+            GetHeroesOp del;
+            AsyncResult asyncObj = (AsyncResult)res;
+
+            if (asyncObj.EndInvokeCalled == false)  
+            {
+                del = (GetHeroesOp)asyncObj.AsyncDelegate; 
+                m_heroes = del.EndInvoke(asyncObj); 
+            }
+            asyncObj.AsyncWaitHandle.Close();
+        }
+
+        /// <summary>
+        /// ~DGServerControllerImpl
+        /// Destructor for DGServerControllerImpl
+        /// cleans up 
+        /// </summary>
         ~DGServerControllerImpl()
         {
             CloseServer(0);
@@ -46,6 +77,7 @@ namespace DistributedGameServer
 
         /// <summary>
         /// ConnectToDB
+        /// connects to the data tier object 
         /// </summary>
         public void ConnectToDB()
         {
@@ -79,8 +111,10 @@ namespace DistributedGameServer
                 CloseServer(1);
             }
         }
+
         /// <summary>
-        /// 
+        /// ConnectToPortal
+        /// Connects and subscribes to the portal
         /// </summary>
         public void ConnectToPortal()
         {
@@ -130,38 +164,34 @@ namespace DistributedGameServer
         /// <returns>Boss</returns>
         public Boss SelectBoss()
         {
-            int def = 0, hp = 0, damage = 0, index = 0;
-            char targPref = '0';
-            string name = "";
-
             try
             {
                 Random random = new Random();
-                index = random.Next(m_database.GetNumBosses() - 1);
-                name = m_database.GetBossNameByID(index);
-                m_database.GetBossStatsByID(index, out def, out hp, out damage, out targPref);
+                int index = random.Next(m_database.GetNumBosses() - 1); // get a random boss index
+                string name = m_database.GetBossNameByID(index);  // get boss name
+                m_database.GetBossStatsByID(index, out int def, out int hp, out int damage, out char targPref); // get boss stats
+
+                return new Boss(index, name, hp, def, damage, targPref);
             } 
             catch (FaultException<DataServerFault> e)
             {
                 Console.WriteLine("Error in {0}, problem type {1}\n{2}", e.Detail.Operation, e.Detail.ProblemType, e.Detail.Message);
                 CloseServer(1);
             }
-
-            return new Boss(index, name, hp, def, damage, targPref);
+            return null;
         }
 
         /// <summary>
         /// GetHeroes
-        /// gets heroes from the database
+        /// gets heroes name and abilities from the data base
+        /// for every hero that exists 
         /// </summary>
-        /// <returns></returns>
-        public List<Hero> GetHeroes()
+        /// <returns>returns a list of heroes</returns>
+        private List<Hero> GetHeroes()
         {
             List<Hero> heroes = new List<Hero>();
             List<Ability> abilities;
-            int val;
-            string name, desc;
-            char type, targ;
+            string name;
 
             try
             {
@@ -170,7 +200,7 @@ namespace DistributedGameServer
                     abilities = new List<Ability>();
                     m_database.GetHeroStatsByID(i, out int def, out int hp, out int moveNum);
                     name = m_database.GetHeroNameByID(i);
-                    m_database.GetMovesByIDAndIndex(i, 0, out val, out desc, out type, out targ);
+                    m_database.GetMovesByIDAndIndex(i, 0, out int val, out string desc, out char type, out char targ);
                     abilities.Add(new Ability(0, desc, val, type, targ));
                     m_database.GetMovesByIDAndIndex(i, 1, out val, out desc, out type, out targ);
                     abilities.Add(new Ability(1, desc, val, type, targ));
@@ -188,6 +218,9 @@ namespace DistributedGameServer
 
         /// <summary>
         /// SelectHero
+        /// Takes a user object and a Hero Object
+        /// and adds it to the player list 
+        /// if there are 5 plays it starts the game
         /// </summary>
         /// <param name="hero"></param>
         /// <param name="user"></param>
@@ -196,47 +229,47 @@ namespace DistributedGameServer
         {
             try
             {
-                if (m_players.ContainsKey(user.UserID))
+                if (m_players.ContainsKey(user.UserID)) // change users hero
                 {
                     m_players[user.UserID] = hero;
                     foreach (var item in m_clients)
                     {
-                        item.Value.NotifyClient(user.UserName + "has joined the fray.");
+                        item.Value.NotifyClient(user.UserName + " has joined the fray."); // notifies clients
                     }
                 }
-                else if (m_players.Count < 12)
+                else if (m_players.Count < 12) // adds new player
                 {
                     m_players.Add(user.UserID, hero);
                     foreach (var item in m_clients)
                     {
-                        item.Value.NotifyClient(user.UserName + "has joined the fray.");
+                        item.Value.NotifyClient(user.UserName + " has joined the fray."); // notifies clients
                     }
                 }
-                else
+                else // notify the user that the serve is full
                 {
                     m_clients[user].NotifyClient("Server Full");
                 }
 
-                if (m_players.Count == 5)
+                if (m_players.Count == 5) // begin game
                 {
                     GameOperation gameDel = Game;
                     AsyncCallback callback = this.GameOnComplete;
 
-                    gameDel.BeginInvoke(callback, null);
+                    gameDel.BeginInvoke(callback, null); // start game with async call
                 }
             }
             catch (CommunicationException)
             {
-                Console.WriteLine("Error Comunicating with client");
-                if (m_clients.ContainsKey(user))
-                    m_clients.Remove(user);
+                Console.WriteLine("Error Comunicating with client"); 
+                if (m_clients.ContainsKey(user)) // if there is an error communicating with the client
+                    m_clients.Remove(user);    // remove the client
             }
         }
 
         /// <summary>
         /// GetServerUrl
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns the Server URL</returns>
         public string GetServerUrl()
         {
             return m_serverInfo.Url;
@@ -245,14 +278,18 @@ namespace DistributedGameServer
         /// <summary>
         /// GetHeroList
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns the list of heroes</returns>
         public List<Hero> GetHeroList()
         {
             return m_heroes;
         }
 
         /// <summary>
-        /// Game
+        /// Game 
+        /// while both the players and boss are alive  loop through the game
+        /// boss takes their turn first 
+        /// then the users select there move and 
+        /// loops though each player to make their move
         /// </summary>
         /// <returns></returns>
         private bool Game()
@@ -268,14 +305,14 @@ namespace DistributedGameServer
             {
                 foreach (var client in m_clients)
                 {
-                    client.Value.NotifyClient("The Game has Started");
+                    client.Value.NotifyClient("The Game has Started"); // notify that the game has started 
                 }
             
-                while (m_boss.HealthPoints > 0 && AreAlive())
+                while (m_boss.HealthPoints > 0 && AreAlive()) // while players and boss are alive
                 {
                     foreach (var client in m_clients)
                     {
-                        client.Value.NotifyGameStats(m_boss, m_players, lastAttacked);
+                        client.Value.NotifyGameStats(m_boss, m_players, lastAttacked); //send game stats to the clients
                     }
                     // boss turn
                     if (strategy == 'R') // attack random
@@ -284,60 +321,60 @@ namespace DistributedGameServer
                         index = highestDmgTarg;
                     highestDmg = 0;
 
-                    dmg = m_boss.Attack;
-                    m_players[index].TakeDamage(dmg);
-                    lastAttacked = m_players[index].HeroName;
+                    dmg = m_boss.Attack; // get boss damage
+                    m_players[index].TakeDamage(dmg); // player takes damage
+                    lastAttacked = m_players[index].HeroName; // set last attacked
 
                     msg += m_boss.BossName + " Has dealt " + dmg + " damage to " + m_players[index].HeroName;
-                    if (m_players[index].HealthPoints == 0)
-                        msg += "\n" + m_players[index].HeroName + " Has Perished.";
+                    if (m_players[index].HealthPoints == 0) // if player has died
+                        msg += "\n" + m_players[index].HeroName + " Has Perished."; // add death message
 
                     foreach (var client in m_clients)
                     {
-                        client.Value.NotifyClient(msg);
+                        client.Value.NotifyClient(msg); // notify clients of the turn
                     }
                     msg = "";
 
                     // player turns
-                    foreach (var client in m_clients)
+                    foreach (var client in m_clients) 
                     {
-                        if (m_players.ContainsKey(client.Key.UserID))
+                        if (m_players.ContainsKey(client.Key.UserID)) // if the client has a player
                         {
                             do
                             {
-                                client.Value.TakeTurn(out ability, out targIdx);
+                                client.Value.TakeTurn(out ability, out targIdx); // wait for valid move
                             }
                             while (targIdx != -1 && ability == null);
 
-                            abilityQueue.Add(Tuple.Create(client.Key.UserID, ability, targIdx));
+                            abilityQueue.Add(Tuple.Create(client.Key.UserID, ability, targIdx)); // add move to ability queue
                         }
                     }
 
-                    foreach (var turn in abilityQueue)
+                    foreach (var turn in abilityQueue) // for each move in the queue
                     {
-                        if (m_players.ContainsKey(turn.Item1) && m_players[turn.Item1].HealthPoints > 0)
+                        if (m_players.ContainsKey(turn.Item1) && m_players[turn.Item1].HealthPoints > 0) // if player is alive
                         {
                                 msg += m_players[turn.Item1].HeroName + " used " + turn.Item2.AbilityName;
                             
-                                if (turn.Item2.Type == 'H')
+                                if (turn.Item2.Type == 'H') // if the ability is a heal ability
                                 {
-                                    if (turn.Item2.Target == 'M')
+                                    if (turn.Item2.Target == 'M') // if the ability targets multiple
                                     {
-                                        HealMulti(turn.Item2.Value);
+                                        HealMulti(turn.Item2.Value);    
                                         msg += "\n" + m_players[turn.Item1].HeroName + " Healed everyone  by " + turn.Item2.Value;
                                     }
-                                    else if (turn.Item2.Target == 'S')
+                                    else if (turn.Item2.Target == 'S') // if the ability targets single
                                     {
                                         HealHero(turn.Item3, turn.Item2.Value);
                                         msg += "\n" + m_players[turn.Item1].HeroName + " Healed " + m_players[turn.Item3].HeroName + " by " + turn.Item2.Value;
                                     }
                                 }
-                                else if (turn.Item2.Type == 'D')
-                                {
-                                    m_boss.TakeDamage(turn.Item2.Value);
+                                else if (turn.Item2.Type == 'D') // if the ability is a damage ability
+                            {
+                                    m_boss.TakeDamage(turn.Item2.Value); // damage boss
                                     msg += "\n" + m_players[turn.Item1].HeroName + " dealt " + turn.Item2.Value + " damage to boss";
                                     if (turn.Item2.Value > highestDmg)
-                                        highestDmgTarg = turn.Item1;
+                                        highestDmgTarg = turn.Item1; // set highest damage hero
 
                                     if (m_boss.HealthPoints == 0)
                                         msg += "\n" + m_players[turn.Item1].HeroName + " has slain " + m_boss.BossName;
@@ -346,7 +383,7 @@ namespace DistributedGameServer
                         }
                         foreach (var cli in m_clients)
                         {
-                            cli.Value.NotifyClient(msg);
+                            cli.Value.NotifyClient(msg); // notify clients of move
                         }
                         msg = "";
                     }
@@ -354,10 +391,10 @@ namespace DistributedGameServer
 
                 foreach (var client in m_clients)
                 {
-                    if (!client.Value.NotifyGameEnded())
-                        return false;
+                    if (!client.Value.NotifyGameEnded())   // notify client game end if a single client returns false
+                        return false;   
                 }
-                return true;
+                return true; 
             }
             catch (TimeoutException)
             {
@@ -383,17 +420,16 @@ namespace DistributedGameServer
 
         /// <summary>
         /// AreAlive
-        /// returns true if all players are alive
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns true if all players are alive</returns>
         private bool AreAlive()
         {
             bool alive = false;
             foreach (var player in m_players)
             {
-                if (player.Value.HealthPoints > 0)
+                if (player.Value.HealthPoints > 0) // if a player is alive
                 {
-                    alive = true;
+                    alive = true; // return true
                 }
             }
 
@@ -407,9 +443,9 @@ namespace DistributedGameServer
         /// <param name="value"></param>
         private void HealMulti(int value)
         {
-            foreach (var player in m_players)
+            foreach (var player in m_players) 
             {
-                player.Value.Heal(value);
+                player.Value.Heal(value); // heal player by value
             }
         }
 
@@ -422,30 +458,41 @@ namespace DistributedGameServer
         private void HealHero(int key, int value)
         {
             if (m_players.ContainsKey(key))
-                m_players[key].Heal(value);
+                m_players[key].Heal(value); // heal player
         }
 
         /// <summary>
         /// Subscribe
+        /// adds new user to clients dictionary 
+        /// with user as the key and their callback channel as value
         /// </summary>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.Synchronized)] 
         public bool Subscribe(User user)
         {
             IDGServerControllerCallback callback = OperationContext.Current.GetCallbackChannel<IDGServerControllerCallback>();
-
-            if (callback != null)
+            try
             {
-                m_clients.Add(user, callback);
-                return true;
+                if (callback != null)
+                {
+                    m_clients.Add(user, callback); // add user to dictionary
+                    return true;
+                }
+                return false;
             }
-            return false;
+            catch (ArgumentNullException)
+            {
+                Console.WriteLine("Error inf function 'Subscribe'");
+                throw new FaultException<GameServerFault>(new GameServerFault("DGServerControllerImpl.Subscribe", "ArgumentNullException", "Invalid user Object"));
+            }
         }
 
         /// <summary>
         /// Unsubscribe
+        /// if the given user object is a client 
+        /// removes them from player and client list
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="user"></param>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Unsubscribe(User user)
         {
@@ -462,6 +509,8 @@ namespace DistributedGameServer
 
         /// <summary>
         /// GameOnComplete
+        /// completion callback for Game()
+        /// if true heal all players and start new game
         /// </summary>
         /// <param name="result"></param>
         private void GameOnComplete(IAsyncResult result)
@@ -477,16 +526,16 @@ namespace DistributedGameServer
             }
             asyncObj.AsyncWaitHandle.Close();
 
-            if (m_players.Count >= 5 && iResult)
+            if (m_players.Count >= 5 && iResult) // if players agree to continue
             {
                 GameOperation game = Game;
                 AsyncCallback callback = GameOnComplete;
                 foreach (var player in m_players)
                 {
-                    player.Value.MaxHeal();
+                    player.Value.MaxHeal(); // heal players
                 }
-                m_boss = SelectBoss();
-                game.BeginInvoke(callback, null);
+                m_boss = SelectBoss(); //  select new boss
+                game.BeginInvoke(callback, null); // async call to gamne
             }
             else
             {
@@ -500,6 +549,12 @@ namespace DistributedGameServer
             }
         }
 
+        /// <summary>
+        /// CloseServer
+        /// Unsubscribe from the portal 
+        /// before closing enviroment
+        /// </summary>
+        /// <param name="errorCode"></param>
         private void CloseServer(int errorCode)
         {
             try

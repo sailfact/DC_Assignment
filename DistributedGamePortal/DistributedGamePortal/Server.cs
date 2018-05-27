@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace DistributedGamePortal
 {
+    /// <summary>
+    /// Server
+    /// stores information about a server
+    /// </summary>
     [DataContract]
     public class Server
     {

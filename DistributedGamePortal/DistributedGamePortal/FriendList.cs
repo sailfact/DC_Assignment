@@ -8,7 +8,10 @@ using System.Threading.Tasks;
 namespace DistributedGamePortal
 {
     public enum Status { Online, Offline}
-
+    /// <summary>
+    /// Friend
+    /// stores information about a friend
+    /// </summary>
     [DataContract]
     public class Friend
     {
@@ -25,6 +28,10 @@ namespace DistributedGamePortal
         }
     }
 
+    /// <summary>
+    /// FriendList
+    /// stores and adds friends to the friendlist 
+    /// </summary>
     [DataContract]
     public class FriendList
     {

@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace DistributedGamePortal
 {
+    /// <summary>
+    /// PortalServerFault
+    /// used for throwing exceptions across tiers 
+    /// defines the operation where the error occurred 
+    /// the problem type and error message
+    /// </summary>
     [DataContract]
     public class PortalServerFault
     {

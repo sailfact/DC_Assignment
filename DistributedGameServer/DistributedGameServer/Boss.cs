@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace DistributedGameServer
 {
     /// <summary>
-    /// 
+    /// Boss
+    /// stores information for a Boss
     /// </summary>
     [DataContract]
     public class Boss
@@ -34,6 +35,15 @@ namespace DistributedGameServer
         [DataMember]
         public char TargetStrategy { get; set; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="hp"></param>
+        /// <param name="def"></param>
+        /// <param name="damage"></param>
+        /// <param name="strat"></param>
         public Boss(int id, string name, int hp, int def, int damage, char strat)
         {
             Random rnd = new Random();
@@ -45,6 +55,10 @@ namespace DistributedGameServer
             this.TargetStrategy = strat;
         }
 
+        /// <summary>
+        /// Attack 
+        /// property returns random damage value
+        /// </summary>
         public int Attack
         {
             get
@@ -54,6 +68,11 @@ namespace DistributedGameServer
             }
         }
 
+        /// <summary>
+        /// TakeDamage
+        /// reduces Boss health by given amount
+        /// </summary>
+        /// <param name="damage"></param>
         public void TakeDamage(int damage)
         {
             if (Defence < damage)
